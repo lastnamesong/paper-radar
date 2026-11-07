@@ -1,0 +1,786 @@
+#!/usr/bin/env python3
+"""Check the distinction track's private folder against distinction/AUTHORING.md.
+
+The distinction track writes nothing into the repository: its versus notes, scoreboard
+and run reports hold the method beside the papers, so they live in a private folder
+on the machine that runs `/distinguish` (`distinction/SETUP.md` §2). No build
+reads them and no workflow can, which makes this lint the track's only gate —
+the routine runs it before saving (prompt step 8), and a human runs it after
+editing a document by hand.
+
+Checks, grouped by the contract section they enforce:
+
+  AUTHORING §1   every `versus/<id>--<alias>.md` names a `BASKET.md` row by
+             id and alias, one file per id, and the checkout holds
+             `analysis/<id>.md`.
+  AUTHORING §3-1 the versus note — an H1, the five-field metadata line, the seven
+             `##` headers verbatim and in order with no other `##`.
+  AUTHORING §3-1 / §4  per section, every bullet carries the anchors its row
+             of the table requires or is `- 없음`; a §4 bullet opens with a
+             verdict; §7 holds a `cfg:` anchor; a §3 and a §6 bullet carry
+             a quote anchor (`원문 §<section> "<English>"`) or `원문 미확인`.
+  AUTHORING §3-2 the scoreboard — rows are METHOD's claims, columns the active
+             rewritten basket, each cell opening with a verdict.
+  AUTHORING §3-3 the report — the H1 date is the file's, the seven headers and
+             an optional eighth `## 8 감사` whose every bullet names a versus note
+             id, at most three `###` under `5`, a closing `probe-state` fence
+             that parses, carries every key and, when it has `verified`,
+             maps ids to dates.
+  AUTHORING §3-4 every `###` idea carries the five labels in order, and a
+             `D#` it names exists in a pillar's Decision Log.
+  AUTHORING §3-5 the code note — `versus/<id>--<alias>--<scope>.md` names
+             a paper with a rewrite, its H1 alias and six-field metadata
+             line agree with the file name, the nine `##` headers verbatim and in order; §1
+             opens with its count line and every bullet with a verdict and
+             a paper anchor, a quote anchor too unless `원문 없음`; §3 and
+             §4 bullets carry their anchors; §5 holds a table whose scope
+             cells carry an anchor or `없음`; §6 bullets a quote anchor; §7
+             bullets a verdict and a quote anchor; §9 a `cfg:` anchor; a
+             ```probe-chart only under §6, drawable by `site/builder/charts.py`
+             with `source`, `why` and `omitted`.
+  AUTHORING §5   active rows <= 12, ideas per versus note <= 2 and per
+             code note <= 3, charts per code note <= 3, prose <= 7,000 characters outside fences in a
+             versus note and <= 20,000 in a code note.
+  AUTHORING §7   no `MY-METHOD.md` §6 string in any output.
+  inputs         `BASKET.md` rows parse — id, role and status from their
+             sets, no duplicate id; `MY-METHOD.md` carries its spine and one
+             bullet per `#### [C#]`.
+
+Precision over recall, mirroring the repo's other gates: every check keys off
+a literal token the contract fixes. Whether a difference is a difference, and
+whether a gap came from the paper's own ablation, is reading (AUTHORING §8).
+
+Usage (repo root):
+    python3 linters/check-distinction-format.py [PRIVATE_DIR]
+
+No PRIVATE_DIR -> `$PROBE_PRIVATE_DIR`. The checkout's `analysis/` and
+`context/` are resolved next to this file.
+
+Exit codes: 0 = clean / 1 = violations found / 2 = no folder to scan.
+"""
+from __future__ import annotations
+
+import argparse
+import glob
+import json
+import os
+import re
+import sys
+
+_REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+_ARXIV_ID = re.compile(r"^\d{4}\.\d{5}$")
+# AUTHORING §2: `<alias>` is the alias with whitespace runs turned into `-`,
+# so it holds no whitespace and no `--`, the separator.
+_ALIAS_SLUG = r"[^\s/-]+(?:-[^\s/-]+)*"
+_LEDGER_NAME = re.compile(rf"^(\d{{4}}\.\d{{5}})--({_ALIAS_SLUG})\.md$")
+_DISSECT_NAME = re.compile(rf"^(\d{{4}}\.\d{{5}})--({_ALIAS_SLUG})--([a-z0-9_]+)\.md$")
+_RUN_NAME = re.compile(r"^(\d{4}-\d{2}-\d{2})\.md$")
+_ARXIV_IN = re.compile(r"\b\d{4}\.\d{5}\b")
+_DATE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
+
+_ROLES = ("baseline", "nearest", "threat", "donor")
+_STATUSES = ("active", "parked", "graduated")
+_VERDICTS = ("지지", "무관", "위협", "반박")
+_FILL_VERDICTS = ("메운다", "부분", "못 메운다")
+_ERRATA_VERDICTS = ("맞음", "틀림", "과장", "원문 없음")
+_NONE = "- 없음"
+
+_ACTIVE_CAP = 12
+_IDEAS_PER_LEDGER = 2
+_IDEAS_PER_RUN = 3
+_LEDGER_PROSE_MAX = 7000
+_IDEAS_PER_DISSECTION = 3
+_DISSECTION_PROSE_MAX = 20000
+_CHARTS_PER_DISSECTION = 3
+
+_LEDGER_SPINE = (
+    "## 1 공통", "## 2 차이", "## 3 그들의 빈자리", "## 4 내 방법이 메우는가",
+    "## 5 그들을 개선할 아이디어", "## 6 위협", "## 7 최저가 반증 실험",
+)
+_RUN_SPINE = (
+    "## 1 코퍼스 변화", "## 2 바구니 변화", "## 3 방법론 변화", "## 4 점수판 변화",
+    "## 5 새 아이디어", "## 6 제안", "## 7 다음 행동",
+)
+_DISSECT_SPINE = (
+    "## 1 재작성본 정오표", "## 2 동기", "## 3 공통", "## 4 구성요소 대조",
+    "## 5 실험 설정", "## 6 결과 대조", "## 7 빈자리와 메움", "## 8 빌려 올 것",
+    "## 9 반증 실험",
+)
+# Present when the run audited (prompt step 7) — report and `--audit` runs.
+_RUN_AUDIT = "## 8 감사"
+_METHOD_SPINE = (
+    "## 0. 문제의식", "## 1. 주장", "## 2. 방법", "## 3. 측정",
+    "## 4. 알려진 약점", "## 5. 진행 중", "## 6. 외부 발화 금지",
+)
+_IDEA_LABELS = (
+    "**조합**", "**왜 어느 쪽도 혼자 못 하나**", "**움직이는 결정**",
+    "**가장 싼 반증 실험**", "**이미 있는 것**",
+)
+_STATE_KEYS = ("run", "corpus_head", "method", "codemap", "basket", "related")
+
+_H1 = re.compile(r"^# \S")
+_H2 = re.compile(r"^## ")
+_H3 = re.compile(r"^### ")
+_BULLET = re.compile(r"^- ")
+_FENCE = re.compile(r"^\s*(```|~~~)")
+
+_LEDGER_META = re.compile(
+    r"^Role: (baseline|nearest|threat|donor) · Claims: (C\d+(?:, C\d+)*) · "
+    r"Rewrite: analysis/(\d{4}\.\d{5})\.md · Method: [0-9a-f]{7} · Run: \d{4}-\d{2}-\d{2}$"
+)
+_DISSECT_H1 = re.compile(r"^# .+ × [a-z0-9_]+ — \S")
+_DISSECT_META = re.compile(
+    r"^Paper: (\d{4}\.\d{5}) · Scope: ([a-z0-9_]+) · Rewrite: analysis/(\d{4}\.\d{5})\.md · "
+    r"Code: [0-9a-f]{7,12} · Method: [0-9a-f]{7} · Run: \d{4}-\d{2}-\d{2}$"
+)
+_ERRATA_COUNT = re.compile(r"^점검 \d+ · 맞음 \d+ · 틀림 \d+ · 과장 \d+ · 원문 없음 \d+$")
+_MATRIX_META = re.compile(r"^Method: [0-9a-f]{7} · Run: \d{4}-\d{2}-\d{2}$")
+_RUN_H1 = re.compile(r"^# (\d{4}-\d{2}-\d{2}) 회차 보고$")
+_MATRIX_H1 = "# 주장 × 바구니"
+
+# Anchor grammars (AUTHORING §4).
+_PAPER_ANCHOR = re.compile(r"`[^`§]+ §[1-4] [^`]+`")
+_CLAIM_ANCHOR = re.compile(r"`C\d+`")
+_METHOD_ANCHOR = re.compile(r"`METHOD §[0-6]`")
+_CODE_ANCHOR = re.compile(r"`[^`\s:]+:\d+`")
+_CFG_ANCHOR = re.compile(r"`cfg:[^`\s]+`")
+# A quote is the original's own words (AUTHORING §4): a section and at least a
+# clause of English. `원문 미확인` stands in only where the original is gone.
+_QUOTE_ANCHOR = re.compile(r'원문 §[^\s"]+ "[^"]*[A-Za-z][^"]{11,}"|원문 미확인')
+_CLAIM_TOKEN = re.compile(r"\bC(\d+)\b")
+_DECISION_TOKEN = re.compile(r"\bD\d[A-Z]{2}\b")
+_CLAIM_HEADING = re.compile(r"^#### \[(C\d+)\] \S")
+_DECISION_HEADING = re.compile(r"^#### \[(D\d[A-Z]{2})\]")
+_TABLE_ROW = re.compile(r"^\s*\|(.+)\|\s*$")
+_TABLE_RULE = re.compile(r"^\s*\|[\s:|-]+\|\s*$")
+_MATRIX_HEAD_CELL = re.compile(r"^.+ \((\d{4}\.\d{5})\)$")
+
+Finding = tuple[str, int, str]
+
+
+# ── Reading helpers ───────────────────────────────────────────────────────
+
+
+def alias_slug(alias: str) -> str:
+    """An alias as a file name writes it (AUTHORING §2)."""
+    return re.sub(r"\s+", "-", alias.strip())
+
+
+def _read(path: str) -> list[str] | None:
+    try:
+        with open(path, encoding="utf-8") as fh:
+            return fh.read().splitlines()
+    except OSError:
+        return None
+
+
+def _split_row(raw: str) -> list[str]:
+    m = _TABLE_ROW.match(raw)
+    return [c.strip() for c in m.group(1).split("|")] if m else []
+
+
+def _sections(lines: list[str], level: re.Pattern) -> list[tuple[str, int, list[tuple[int, str]]]]:
+    """(header, line, [(line, text)…]) per header of `level`, fences kept."""
+    out: list[tuple[str, int, list[tuple[int, str]]]] = []
+    for lineno, raw in enumerate(lines, start=1):
+        if level.match(raw):
+            out.append((raw.rstrip(), lineno, []))
+        elif out:
+            out[-1][2].append((lineno, raw))
+    return out
+
+
+def _outside_fences(body: list[tuple[int, str]]) -> list[tuple[int, str]]:
+    out, in_fence = [], False
+    for lineno, raw in body:
+        if _FENCE.match(raw):
+            in_fence = not in_fence
+            continue
+        if not in_fence:
+            out.append((lineno, raw))
+    return out
+
+
+def _top_bullets(body: list[tuple[int, str]]) -> list[tuple[int, str]]:
+    """Top-level `- ` bullets with their continuation lines folded in."""
+    out: list[tuple[int, str]] = []
+    for lineno, raw in _outside_fences(body):
+        if _BULLET.match(raw):
+            out.append((lineno, raw))
+        elif out and raw.startswith("  ") and raw.strip():
+            out[-1] = (out[-1][0], out[-1][1] + " " + raw.strip())
+    return out
+
+
+def _chart_fences(body: list[tuple[int, str]]) -> list[tuple[int, str]]:
+    """(line, JSON text) per ```probe-chart fence in a section body."""
+    out: list[tuple[int, str]] = []
+    start, buf = 0, None
+    for lineno, raw in body:
+        if buf is None:
+            if raw.strip() == "```probe-chart":
+                start, buf = lineno, []
+        elif _FENCE.match(raw):
+            out.append((start, "\n".join(buf)))
+            buf = None
+        else:
+            buf.append(raw)
+    return out
+
+
+def _check_charts(name: str, sections: dict, home: str, findings: list[Finding]) -> None:
+    for key, body in sections.items():
+        fences = _chart_fences(body)
+        if key != home:
+            findings.extend((name, ln, "§3-5 a ```probe-chart stands outside 6 결과 대조") for ln, _ in fences)
+            continue
+        if len(fences) > _CHARTS_PER_DISSECTION:
+            findings.append((name, fences[0][0], f"§5 {len(fences)} charts, ceiling is {_CHARTS_PER_DISSECTION}"))
+        for ln, text in fences:
+            try:
+                spec = json.loads(text)
+            except json.JSONDecodeError as err:
+                findings.append((name, ln, f"§3-5 ```probe-chart is not JSON — {err}"))
+                continue
+            # The drawing code is the site's, borrowed on the standard library.
+            sys.path.insert(0, os.path.join(_REPO_ROOT, "site"))
+            from builder import charts
+            for problem in charts.problems("", "chart", spec):
+                findings.append((name, ln, "§3-5 " + problem.lstrip(": ")))
+            if not isinstance(spec, dict):
+                continue
+            if "omitted" not in spec:
+                findings.append((name, ln, "§3-5 ```probe-chart has no `omitted` — the source rows it leaves out"))
+
+
+# ── Inputs: BASKET.md and MY-METHOD.md ───────────────────────────────────────
+
+
+def read_basket(path: str, findings: list[Finding]) -> dict[str, dict]:
+    """id -> {alias, role, claims, status}; findings for rows that do not parse."""
+    lines = _read(path)
+    name = os.path.basename(path)
+    if lines is None:
+        findings.append((name, 0, "inputs: BASKET.md is unreadable"))
+        return {}
+    rows: dict[str, dict] = {}
+    header_seen = False
+    for lineno, raw in enumerate(lines, start=1):
+        cells = _split_row(raw)
+        if not cells or _TABLE_RULE.match(raw):
+            continue
+        if not header_seen:
+            header_seen = cells[:5] == ["arXiv", "alias", "role", "claims", "status"]
+            if not header_seen:
+                findings.append((name, lineno, "inputs: table header is not `| arXiv | alias | role | claims | status | note |` (SETUP §2-1)"))
+                return {}
+            continue
+        if len(cells) < 5:
+            findings.append((name, lineno, "inputs: row has fewer than five cells (SETUP §2-1)"))
+            continue
+        pid, alias, role, claims, status = cells[:5]
+        if not _ARXIV_ID.match(pid):
+            findings.append((name, lineno, f"inputs: `{pid}` is not a bare arXiv id (SETUP §2-1)"))
+            continue
+        if pid in rows:
+            findings.append((name, lineno, f"inputs: duplicate basket row for {pid} (SETUP §2-1)"))
+            continue
+        if role not in _ROLES:
+            findings.append((name, lineno, f"inputs: role `{role}` not in {', '.join(_ROLES)} (SETUP §2-1)"))
+        if status not in _STATUSES:
+            findings.append((name, lineno, f"inputs: status `{status}` not in {', '.join(_STATUSES)} (SETUP §2-1)"))
+        claim_ids = [c.strip() for c in claims.split(",") if c.strip()]
+        if "--" in alias:
+            findings.append((name, lineno, f"inputs: alias `{alias}` holds `--`, the file-name separator (AUTHORING §2)"))
+        rows[pid] = {"alias": alias, "role": role, "claims": claim_ids, "status": status, "line": lineno}
+    active = sum(1 for r in rows.values() if r["status"] == "active")
+    if active > _ACTIVE_CAP:
+        findings.append((name, 0, f"§5 {active} active rows, cap is {_ACTIVE_CAP}"))
+    return rows
+
+
+def read_method(path: str, findings: list[Finding]) -> tuple[set[str], list[str]]:
+    """(claim ids, forbidden strings); findings for a spine or claim-format slip."""
+    lines = _read(path)
+    name = os.path.basename(path)
+    if lines is None:
+        findings.append((name, 0, "inputs: MY-METHOD.md is unreadable"))
+        return set(), []
+    headers = [raw.rstrip() for raw in lines if _H2.match(raw)]
+    for want in _METHOD_SPINE:
+        if want not in headers:
+            findings.append((name, 0, f'inputs: MY-METHOD.md lacks "{want}" (SETUP §2-2)'))
+    claims: set[str] = set()
+    forbidden: list[str] = []
+    for header, lineno, body in _sections(lines, _H2):
+        if header == _METHOD_SPINE[1]:
+            pending: tuple[str, int] | None = None
+            for ln, raw in _outside_fences(body):
+                m = _CLAIM_HEADING.match(raw)
+                if m:
+                    if pending:
+                        findings.append((name, pending[1], f"inputs: {pending[0]} has no bullet under its heading (SETUP §2-2)"))
+                    if m.group(1) in claims:
+                        findings.append((name, ln, f"inputs: {m.group(1)} is declared twice (SETUP §2-2)"))
+                    claims.add(m.group(1))
+                    pending = (m.group(1), ln)
+                elif _BULLET.match(raw) and pending:
+                    pending = None
+            if pending:
+                findings.append((name, pending[1], f"inputs: {pending[0]} has no bullet under its heading (SETUP §2-2)"))
+        elif header == _METHOD_SPINE[6]:
+            for _, raw in _top_bullets(body):
+                text = raw[2:].strip()
+                if text and not (text.startswith("<") and text.endswith(">")):
+                    forbidden.append(text)
+    if not claims:
+        findings.append((name, 0, "inputs: MY-METHOD.md §1 declares no `#### [C<n>]` claim (SETUP §2-2)"))
+    if not any(re.match(r"^name: \S", raw) for raw in lines):
+        findings.append((name, 0, "inputs: MY-METHOD.md has no `name:` line (SETUP §2-2)"))
+    return claims, forbidden
+
+
+def _decision_ids() -> set[str]:
+    ids: set[str] = set()
+    for path in glob.glob(os.path.join(_REPO_ROOT, "context", "P[0-9].md")):
+        for raw in _read(path) or []:
+            m = _DECISION_HEADING.match(raw)
+            if m:
+                ids.add(m.group(1))
+    return ids
+
+
+# ── Shared: ideas and forbidden strings ───────────────────────────────────
+
+
+def _check_ideas(name: str, body: list[tuple[int, str]], cap: int, where: str,
+                 decisions: set[str], findings: list[Finding]) -> None:
+    ideas = _sections([raw for _, raw in body], _H3)
+    # `_sections` renumbers from 1; map back to file lines through the body.
+    offsets = [ln for ln, _ in body]
+    if len(ideas) > cap:
+        findings.append((name, offsets[ideas[cap][1] - 1], f"§5 {len(ideas)} ideas under {where}, cap is {cap}"))
+    for _, rel_line, idea_body in ideas:
+        at = offsets[rel_line - 1]
+        labels = [raw for _, raw in idea_body if _BULLET.match(raw)]
+        found = [next((lab for lab in _IDEA_LABELS if raw.startswith("- " + lab)), None) for raw in labels]
+        found = [f for f in found if f]
+        if found != list(_IDEA_LABELS):
+            findings.append((name, at, "§3-4 idea does not carry the five labels in order: " + " · ".join(_IDEA_LABELS)))
+        for raw in labels:
+            if raw.startswith("- " + _IDEA_LABELS[2]):
+                codes = _DECISION_TOKEN.findall(raw)
+                if not codes:
+                    findings.append((name, at, "§3-4 **움직이는 결정** names no `D#`"))
+                for code in codes:
+                    if decisions and code not in decisions:
+                        findings.append((name, at, f"§3-4 {code} is in no pillar's Decision Log"))
+
+
+def _check_forbidden(name: str, lines: list[str], forbidden: list[str], findings: list[Finding]) -> None:
+    for lineno, raw in enumerate(lines, start=1):
+        for text in forbidden:
+            if text in raw:
+                findings.append((name, lineno, "§7 carries a `MY-METHOD.md` §6 string"))
+                break
+        if not raw.startswith("## "):
+            m = _POINTER.search(_QUOTED.sub("", raw))
+            if m:
+                findings.append((name, lineno, f"§6 `{m.group(0)}` points at our side — write its name"))
+
+
+# A word that stands for our side instead of naming it (§6), and the quotes
+# it may appear in because the rewrite or the original wrote it.
+_POINTER = re.compile(r"이 방법|이 범위|내 방법|우리(?=[는의가도]|\s)")
+_QUOTED = re.compile(r'"[^"]*"')
+
+
+def _check_claim_tokens(name: str, lines: list[str], claims: set[str], findings: list[Finding]) -> None:
+    for lineno, raw in enumerate(lines, start=1):
+        for m in _CLAIM_ANCHOR.finditer(raw):
+            code = m.group(0).strip("`")
+            if code not in claims:
+                findings.append((name, lineno, f"§4 `{code}` is not a claim in `MY-METHOD.md` §1"))
+
+
+# ── The versus note ────────────────────────────────────────────────────────────
+
+
+def check_ledger(path: str, basket: dict[str, dict], claims: set[str], forbidden: list[str],
+                 decisions: set[str]) -> list[Finding]:
+    name = "versus/" + os.path.basename(path)
+    findings: list[Finding] = []
+    m = _LEDGER_NAME.match(os.path.basename(path))
+    if not m:
+        return [(name, 0, "§3-1 file name is not `<arxiv-id>--<alias>.md`")]
+    pid, slug = m.groups()
+    if pid not in basket:
+        findings.append((name, 0, f"§1 {pid} is not a `BASKET.md` row"))
+    elif slug != alias_slug(basket[pid]["alias"]):
+        findings.append((name, 0, f"§1 the file name says `{slug}`, the `BASKET.md` alias makes `{alias_slug(basket[pid]['alias'])}` — rename the note and its page"))
+    if not os.path.exists(os.path.join(_REPO_ROOT, "analysis", pid + ".md")):
+        findings.append((name, 0, f"§1 analysis/{pid}.md does not exist — the paper has no rewrite"))
+    lines = _read(path)
+    if lines is None:
+        return findings + [(name, 0, "unreadable")]
+
+    if not lines or not _H1.match(lines[0]):
+        findings.append((name, 1, "§3-1 line 1 is not the H1"))
+    meta_line = next((ln for ln, raw in enumerate(lines[1:], start=2) if raw.strip()), None)
+    if meta_line is None or not _LEDGER_META.match(lines[meta_line - 1]):
+        findings.append((name, meta_line or 2, "§3-1 metadata line is not `Role: … · Claims: … · Rewrite: analysis/<id>.md · Method: <7 hex> · Run: YYYY-MM-DD`"))
+    else:
+        mm = _LEDGER_META.match(lines[meta_line - 1])
+        if mm.group(3) != pid:
+            findings.append((name, meta_line, f"§3-1 `Rewrite:` names {mm.group(3)}, the file is {pid}"))
+        row = basket.get(pid)
+        if row and mm.group(1) != row["role"]:
+            findings.append((name, meta_line, f"§3-1 `Role:` is {mm.group(1)}, `BASKET.md` says {row['role']}"))
+        if row and row["claims"] and [c.strip() for c in mm.group(2).split(",")] != row["claims"]:
+            findings.append((name, meta_line, "§3-1 `Claims:` differs from the `BASKET.md` row"))
+
+    headers = [(raw.rstrip(), ln) for ln, raw in enumerate(lines, start=1) if _H2.match(raw)]
+    if [h for h, _ in headers] != list(_LEDGER_SPINE):
+        findings.append((name, headers[0][1] if headers else 0, "§3-1 the `##` headers are not the seven of the spine, verbatim and in order"))
+
+    sections = {h: body for h, _, body in _sections(lines, _H2)}
+
+    def bullets(key: str) -> list[tuple[int, str]]:
+        return _top_bullets(sections.get(key, []))
+
+    def need(key: str, want: str, *patterns: re.Pattern) -> None:
+        for ln, raw in bullets(key):
+            if raw.strip() == _NONE:
+                continue
+            if not all(any(p.search(raw) for p in group) for group in patterns):
+                findings.append((name, ln, f"§4 bullet under {key[3:]} lacks {want}"))
+
+    need(_LEDGER_SPINE[0], "a paper anchor and a `C#` / `METHOD §n` anchor", (_PAPER_ANCHOR,), (_CLAIM_ANCHOR, _METHOD_ANCHOR))
+    need(_LEDGER_SPINE[1], "a paper anchor and a `path:line` / `cfg:key` / `METHOD §n` anchor", (_PAPER_ANCHOR,), (_CODE_ANCHOR, _CFG_ANCHOR, _METHOD_ANCHOR))
+    need(_LEDGER_SPINE[2], "a paper anchor and a quote anchor", (_PAPER_ANCHOR,), (_QUOTE_ANCHOR,))
+    need(_LEDGER_SPINE[5], "a paper anchor and a quote anchor", (_PAPER_ANCHOR,), (_QUOTE_ANCHOR,))
+    for ln, raw in bullets(_LEDGER_SPINE[3]):
+        if raw.strip() == _NONE:
+            continue
+        if not any(raw.startswith("- " + v + " ") or raw.startswith("- " + v + " —") for v in _FILL_VERDICTS):
+            findings.append((name, ln, "§3-1 bullet under 내 방법이 메우는가 does not open with 메운다 / 부분 / 못 메운다"))
+        if not _METHOD_ANCHOR.search(raw):
+            findings.append((name, ln, "§4 bullet under 내 방법이 메우는가 lacks a `METHOD §n` anchor"))
+    seven = bullets(_LEDGER_SPINE[6])
+    if not seven:
+        findings.append((name, 0, "§3-1 최저가 반증 실험 holds no bullet"))
+    elif not any(raw.strip() == _NONE for _, raw in seven) and not any(_CFG_ANCHOR.search(raw) for _, raw in seven):
+        findings.append((name, seven[0][0], "§4 최저가 반증 실험 names no `cfg:` key"))
+    for key in _LEDGER_SPINE[:4] + _LEDGER_SPINE[5:6]:
+        if key in sections and not bullets(key):
+            findings.append((name, 0, f"§3-1 {key[3:]} holds no bullet (write `- 없음` when there is nothing)"))
+
+    _check_ideas(name, sections.get(_LEDGER_SPINE[4], []), _IDEAS_PER_LEDGER, "그들을 개선할 아이디어", decisions, findings)
+
+    prose = sum(len(raw) for _, raw in _outside_fences(list(enumerate(lines, start=1))))
+    if prose > _LEDGER_PROSE_MAX:
+        findings.append((name, 0, f"§5 {prose} characters of prose, ceiling is {_LEDGER_PROSE_MAX}"))
+
+    _check_claim_tokens(name, lines, claims, findings)
+    _check_forbidden(name, lines, forbidden, findings)
+    return findings
+
+
+# ── The code note ────────────────────────────────────────────────────────
+
+
+def _opens_with(raw: str, verdicts: tuple[str, ...]) -> str | None:
+    """The verdict a bullet opens with, bare or bold, else None."""
+    text = raw[2:].lstrip()
+    for v in sorted(verdicts, key=len, reverse=True):
+        for form in (v, f"**{v}**"):
+            if text == form or text.startswith(form + " ") or text.startswith(form + ","):
+                return v
+    return None
+
+
+def check_dissection(path: str, claims: set[str], forbidden: list[str],
+                     decisions: set[str]) -> list[Finding]:
+    name = "versus/" + os.path.basename(path)
+    findings: list[Finding] = []
+    m = _DISSECT_NAME.match(os.path.basename(path))
+    if not m:
+        return [(name, 0, "§3-5 file name is not `<arxiv-id>--<alias>--<scope>.md`")]
+    pid, slug, scope = m.groups()
+    if not os.path.exists(os.path.join(_REPO_ROOT, "analysis", pid + ".md")):
+        findings.append((name, 0, f"§1 analysis/{pid}.md does not exist — the paper has no rewrite"))
+    lines = _read(path)
+    if lines is None:
+        return findings + [(name, 0, "unreadable")]
+
+    if not lines or not _DISSECT_H1.match(lines[0]):
+        findings.append((name, 1, "§3-5 line 1 is not the H1 `# <alias> × <scope> — <한 문장>`"))
+    elif f" × {scope} — " not in lines[0]:
+        findings.append((name, 1, f"§3-5 the H1 does not name the scope `{scope}`"))
+    elif alias_slug(lines[0][2:].partition(" × ")[0]) != slug:
+        findings.append((name, 1, f"§3-5 the file name says `{slug}`, the H1 alias makes `{alias_slug(lines[0][2:].partition(' × ')[0])}`"))
+    meta_line = next((ln for ln, raw in enumerate(lines[1:], start=2) if raw.strip()), None)
+    mm = _DISSECT_META.match(lines[meta_line - 1]) if meta_line else None
+    if not mm:
+        findings.append((name, meta_line or 2, "§3-5 metadata line is not `Paper: <id> · Scope: <scope> · Rewrite: analysis/<id>.md · Code: <hash> · Method: <7 hex> · Run: YYYY-MM-DD`"))
+    elif (mm.group(1), mm.group(2), mm.group(3)) != (pid, scope, pid):
+        findings.append((name, meta_line, "§3-5 metadata `Paper:` / `Scope:` / `Rewrite:` disagree with the file name"))
+
+    headers = [(raw.rstrip(), ln) for ln, raw in enumerate(lines, start=1) if _H2.match(raw)]
+    if [h for h, _ in headers] != list(_DISSECT_SPINE):
+        findings.append((name, headers[0][1] if headers else 0, "§3-5 the `##` headers are not the nine of the spine, verbatim and in order"))
+
+    sections = {h: body for h, _, body in _sections(lines, _H2)}
+
+    def bullets(key: str) -> list[tuple[int, str]]:
+        return [(ln, raw) for ln, raw in _top_bullets(sections.get(key, [])) if raw.strip() != _NONE]
+
+    errata, motive, shared, stages, setup, results, gaps, ideas, runs = _DISSECT_SPINE
+
+    body = [(ln, raw) for ln, raw in _outside_fences(sections.get(errata, [])) if raw.strip()]
+    if body and not _ERRATA_COUNT.match(body[0][1].strip()):
+        findings.append((name, body[0][0], "§3-5 정오표 does not open with `점검 N · 맞음 n · 틀림 n · 과장 n · 원문 없음 n`"))
+    for ln, raw in bullets(errata):
+        verdict = _opens_with(raw, _ERRATA_VERDICTS)
+        if not verdict:
+            findings.append((name, ln, "§3-5 정오표 bullet does not open with 맞음 / 틀림 / 과장 / 원문 없음"))
+        if not _PAPER_ANCHOR.search(raw):
+            findings.append((name, ln, "§4 정오표 bullet lacks a paper anchor — where the rewrite says it"))
+        if verdict != "원문 없음" and not _QUOTE_ANCHOR.search(raw):
+            findings.append((name, ln, "§4 정오표 bullet lacks a quote anchor"))
+
+    for ln, raw in bullets(shared):
+        if not _PAPER_ANCHOR.search(raw) or not any(p.search(raw) for p in (_CODE_ANCHOR, _CFG_ANCHOR, _METHOD_ANCHOR)):
+            findings.append((name, ln, "§4 bullet under 공통 lacks a paper anchor and a `path:line` / `cfg:key` / `METHOD §n` anchor"))
+    # §4 is staged under `###`; its bullets are checked through the whole section.
+    for ln, raw in bullets(stages):
+        if not _PAPER_ANCHOR.search(raw) or not (_CODE_ANCHOR.search(raw) or _CFG_ANCHOR.search(raw)):
+            findings.append((name, ln, "§4 bullet under 구성요소 대조 lacks a paper anchor and a `path:line` / `cfg:key` anchor"))
+
+    setup_body = _outside_fences(sections.get(setup, []))
+    rows = [(ln, _split_row(raw)) for ln, raw in setup_body if _TABLE_ROW.match(raw) and not _TABLE_RULE.match(raw)]
+    if not rows and not any(raw.strip() == _NONE for _, raw in setup_body):
+        findings.append((name, 0, "§3-5 실험 설정 holds no table (write `- 없음` when there is nothing)"))
+    for ln, cells in rows[1:]:
+        cell = cells[-1] if cells else ""
+        if cell != "없음" and not any(p.search(cell) for p in (_CODE_ANCHOR, _CFG_ANCHOR, _METHOD_ANCHOR)):
+            findings.append((name, ln, "§4 실험 설정 row's scope cell lacks a `path:line` / `cfg:key` / `METHOD §n` anchor or `없음`"))
+
+    for ln, raw in bullets(results):
+        if not _QUOTE_ANCHOR.search(raw):
+            findings.append((name, ln, "§4 bullet under 결과 대조 lacks a quote anchor or `원문 미확인`"))
+    for ln, raw in bullets(gaps):
+        if not _opens_with(raw, _FILL_VERDICTS):
+            findings.append((name, ln, "§3-5 bullet under 빈자리와 메움 does not open with 메운다 / 부분 / 못 메운다"))
+        if not _QUOTE_ANCHOR.search(raw):
+            findings.append((name, ln, "§4 bullet under 빈자리와 메움 lacks a quote anchor or `원문 미확인`"))
+
+    last = _top_bullets(sections.get(runs, []))
+    if not last:
+        findings.append((name, 0, "§3-5 반증 실험 holds no bullet"))
+    elif not any(raw.strip() == _NONE for _, raw in last) and not any(_CFG_ANCHOR.search(raw) for _, raw in last):
+        findings.append((name, last[0][0], "§4 반증 실험 names no `cfg:` key"))
+    for key in (motive, shared, stages, results, gaps):
+        if key in sections and not _top_bullets(sections[key]):
+            findings.append((name, 0, f"§3-5 {key[3:]} holds no bullet (write `- 없음` when there is nothing)"))
+
+    _check_ideas(name, sections.get(ideas, []), _IDEAS_PER_DISSECTION, "빌려 올 것", decisions, findings)
+    _check_charts(name, sections, results, findings)
+
+    prose = sum(len(raw) for _, raw in _outside_fences(list(enumerate(lines, start=1))))
+    if prose > _DISSECTION_PROSE_MAX:
+        findings.append((name, 0, f"§5 {prose} characters of prose, ceiling is {_DISSECTION_PROSE_MAX}"))
+
+    _check_claim_tokens(name, lines, claims, findings)
+    _check_forbidden(name, lines, forbidden, findings)
+    return findings
+
+
+# ── The scoreboard ────────────────────────────────────────────────────────────
+
+
+def check_matrix(path: str, basket: dict[str, dict], claims: set[str], forbidden: list[str]) -> list[Finding]:
+    name = "scoreboard.md"
+    lines = _read(path)
+    if lines is None:
+        return [(name, 0, "unreadable")]
+    findings: list[Finding] = []
+    if not lines or lines[0].rstrip() != _MATRIX_H1:
+        findings.append((name, 1, f"§3-2 line 1 is not `{_MATRIX_H1}`"))
+    meta_line = next((ln for ln, raw in enumerate(lines[1:], start=2) if raw.strip()), None)
+    if meta_line is None or not _MATRIX_META.match(lines[meta_line - 1]):
+        findings.append((name, meta_line or 2, "§3-2 metadata line is not `Method: <7 hex> · Run: YYYY-MM-DD`"))
+
+    expected_cols = [pid for pid, r in basket.items()
+                     if r["status"] == "active" and os.path.exists(os.path.join(_REPO_ROOT, "analysis", pid + ".md"))]
+    header: list[str] | None = None
+    seen_rows: set[str] = set()
+    for lineno, raw in enumerate(lines, start=1):
+        cells = _split_row(raw)
+        if not cells or _TABLE_RULE.match(raw):
+            continue
+        if header is None:
+            header = cells
+            ids = []
+            for cell in cells[1:]:
+                m = _MATRIX_HEAD_CELL.match(cell)
+                if not m:
+                    findings.append((name, lineno, f"§3-2 column head `{cell}` is not `<alias> (<arxiv-id>)`"))
+                else:
+                    ids.append(m.group(1))
+            if ids != expected_cols:
+                findings.append((name, lineno, "§3-2 columns are not the active rewritten basket rows in `BASKET.md` order"))
+            continue
+        label = cells[0]
+        if label not in claims:
+            findings.append((name, lineno, f"§3-2 row `{label}` is not a claim in `MY-METHOD.md` §1"))
+        seen_rows.add(label)
+        if len(cells) != len(header):
+            findings.append((name, lineno, "§3-2 row does not have one cell per column"))
+        for cell in cells[1:]:
+            if not any(cell == v or cell.startswith(v + " ") for v in _VERDICTS):
+                findings.append((name, lineno, f"§3-2 cell `{cell[:20]}` does not open with 지지 / 무관 / 위협 / 반박"))
+    if header is None:
+        findings.append((name, 0, "§3-2 no table"))
+    for code in sorted(claims - seen_rows):
+        findings.append((name, 0, f"§3-2 claim {code} has no row"))
+    _check_forbidden(name, lines, forbidden, findings)
+    return findings
+
+
+# ── The report ─────────────────────────────────────────────────────────────
+
+
+def check_run(path: str, claims: set[str], forbidden: list[str], decisions: set[str]) -> list[Finding]:
+    name = "runs/" + os.path.basename(path)
+    findings: list[Finding] = []
+    m = _RUN_NAME.match(os.path.basename(path))
+    if not m:
+        return [(name, 0, "§3-3 file name is not `YYYY-MM-DD.md`")]
+    lines = _read(path)
+    if lines is None:
+        return [(name, 0, "unreadable")]
+    h1 = _RUN_H1.match(lines[0]) if lines else None
+    if not h1:
+        findings.append((name, 1, "§3-3 line 1 is not `# YYYY-MM-DD 회차 보고`"))
+    elif h1.group(1) != m.group(1):
+        findings.append((name, 1, f"§3-3 H1 date {h1.group(1)} differs from the file name"))
+
+    headers = [(raw.rstrip(), ln) for ln, raw in enumerate(lines, start=1) if _H2.match(raw)]
+    if [h for h, _ in headers] not in (list(_RUN_SPINE), list(_RUN_SPINE) + [_RUN_AUDIT]):
+        findings.append((name, headers[0][1] if headers else 0, "§3-3 the `##` headers are not the seven of the spine and an optional `8 감사`, verbatim and in order"))
+    sections = {h: body for h, _, body in _sections(lines, _H2)}
+    for key in _RUN_SPINE:
+        if key in sections and key != _RUN_SPINE[4] and not _top_bullets(sections[key]):
+            findings.append((name, 0, f"§3-3 {key[3:]} holds no bullet (write `- 없음` when nothing moved)"))
+    _check_ideas(name, sections.get(_RUN_SPINE[4], []), _IDEAS_PER_RUN, "새 아이디어", decisions, findings)
+    if _RUN_AUDIT in sections:
+        audited = _top_bullets(sections[_RUN_AUDIT])
+        if not audited:
+            findings.append((name, 0, "§3-3 감사 holds no bullet — one per audited versus note"))
+        for ln, raw in audited:
+            if not _ARXIV_IN.search(raw):
+                findings.append((name, ln, "§3-3 a 감사 bullet names no versus note id"))
+
+    # The closing probe-state fence.
+    state_start = None
+    for ln in range(len(lines) - 1, -1, -1):
+        if lines[ln].strip() == "```probe-state":
+            state_start = ln
+            break
+    if state_start is None:
+        findings.append((name, len(lines), "§3-3 no closing ```probe-state block"))
+    else:
+        payload = []
+        closed = False
+        for raw in lines[state_start + 1:]:
+            if raw.strip() == "```":
+                closed = True
+                break
+            payload.append(raw)
+        trailing = [raw for raw in lines[state_start + 1 + len(payload) + 1:] if raw.strip()] if closed else []
+        if not closed:
+            findings.append((name, state_start + 1, "§3-3 probe-state fence is not closed"))
+        elif trailing:
+            findings.append((name, state_start + 1, "§3-3 probe-state is not the last thing in the file"))
+        try:
+            state = json.loads("\n".join(payload))
+        except ValueError:
+            state = None
+            findings.append((name, state_start + 2, "§3-3 probe-state is not valid JSON"))
+        if isinstance(state, dict):
+            for key in _STATE_KEYS:
+                if key not in state:
+                    findings.append((name, state_start + 2, f"§3-3 probe-state lacks `{key}`"))
+            if state.get("run") != m.group(1):
+                findings.append((name, state_start + 2, "§3-3 probe-state `run` differs from the file date"))
+            if not isinstance(state.get("related"), dict):
+                findings.append((name, state_start + 2, "§3-3 probe-state `related` is not an object of id -> [ids]"))
+            verified = state.get("verified")
+            if verified is not None and not (
+                isinstance(verified, dict)
+                and all(_ARXIV_ID.match(k) and isinstance(v, str) and _DATE.match(v) for k, v in verified.items())
+            ):
+                findings.append((name, state_start + 2, "§3-3 probe-state `verified` is not an object of id -> YYYY-MM-DD"))
+        elif state is not None:
+            findings.append((name, state_start + 2, "§3-3 probe-state is not a JSON object"))
+
+    _check_claim_tokens(name, lines, claims, findings)
+    _check_forbidden(name, lines, forbidden, findings)
+    return findings
+
+
+# ── Driver ────────────────────────────────────────────────────────────────
+
+
+def check_folder(folder: str) -> list[Finding]:
+    findings: list[Finding] = []
+    basket = read_basket(os.path.join(folder, "BASKET.md"), findings)
+    claims, forbidden = read_method(os.path.join(folder, "MY-METHOD.md"), findings)
+    decisions = _decision_ids()
+    seen: dict[str, str] = {}
+    for path in sorted(glob.glob(os.path.join(folder, "versus", "*.md"))):
+        # A code note shares the folder; the scope its name carries tells it apart.
+        if _DISSECT_NAME.match(os.path.basename(path)):
+            findings += check_dissection(path, claims, forbidden, decisions)
+            continue
+        findings += check_ledger(path, basket, claims, forbidden, decisions)
+        m = _LEDGER_NAME.match(os.path.basename(path))
+        if m and m.group(1) in seen:
+            findings.append(("versus/" + os.path.basename(path), 0,
+                             f"§1 a second versus note for {m.group(1)}, beside versus/{seen[m.group(1)]}"))
+        elif m:
+            seen[m.group(1)] = os.path.basename(path)
+    matrix = os.path.join(folder, "scoreboard.md")
+    if os.path.exists(matrix):
+        findings += check_matrix(matrix, basket, claims, forbidden)
+    for path in sorted(glob.glob(os.path.join(folder, "runs", "*.md"))):
+        findings += check_run(path, claims, forbidden, decisions)
+    return findings
+
+
+def main(argv: list[str] | None = None) -> int:
+    parser = argparse.ArgumentParser(
+        description="Check the distinction track's private folder against distinction/AUTHORING.md."
+    )
+    parser.add_argument("folder", nargs="?", default=os.environ.get("PROBE_PRIVATE_DIR"),
+                        help="the private folder (default: $PROBE_PRIVATE_DIR)")
+    args = parser.parse_args(argv)
+
+    if not args.folder or not os.path.isdir(args.folder):
+        sys.stderr.write("[check-distinction-format] no private folder — pass a path or set PROBE_PRIVATE_DIR\n")
+        return 2
+
+    findings = check_folder(args.folder)
+    for name, lineno, message in findings:
+        print(f"{name}:{lineno}: {message}")
+    if findings:
+        print(f"\n[check-distinction-format] {len(findings)} violation(s) in {args.folder}")
+        return 1
+    print(f"[check-distinction-format] clean — {args.folder}")
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

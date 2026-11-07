@@ -1,0 +1,54 @@
+name: Check scouting format
+
+# Verify that scouting reports follow the output contract in
+# scouting/AUTHORING.md — an oversized `Papers scanned:` log, a Reproducibility
+# score that contradicts its own rationale, a paper header that grows a grade
+# beside its rank.
+#
+# The scouting track has no build step and no PR: the scheduled routine pushes
+# each report straight to `main`. A `pull_request` trigger alone would therefore
+# never see a scouting report at all, so this workflow fires on BOTH events:
+#
+#   push (main)     — the path scouting reports actually take. Post-hoc, so it
+#                     reports rather than blocks; the blocking gate is this
+#                     same linter, run by the routine before it commits
+#                     (.claude/prompts/scout.txt → PART I, CHECK).
+#   pull_request    — a human editing reports, the linter, or the contract.
+#
+# Lint-only, no auto-fix: every violation is a judgement the agent (or a human)
+# has to remake — which evidence the score rests on, which detail the
+# provenance line drops.
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'scouting/**/*.md'
+      - 'linters/check-scouting-format.py'
+      - '.github/workflows/check-scouting-format.yml'
+  pull_request:
+    paths:
+      - 'scouting/**/*.md'
+      - 'linters/check-scouting-format.py'
+      - '.github/workflows/check-scouting-format.yml'
+
+permissions:
+  contents: read
+
+# `head_ref` is empty on push events — fall back to the full ref so pushes
+# group per branch instead of colliding on one empty key.
+concurrency:
+  group: check-scouting-format-${{ github.head_ref || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+      - name: Check scouting reports against the output contract
+        run: python3 linters/check-scouting-format.py

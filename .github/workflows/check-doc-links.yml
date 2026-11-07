@@ -1,0 +1,42 @@
+name: Check doc links
+
+# Verify that local path references in the structural index docs resolve, on
+# every PR that touches those docs or the linter itself — the dangling-path
+# half of the CLAUDE.md "When adding a new doc" checklist. What it scans and
+# skips is `linters/check-doc-links.py`'s docstring.
+#
+# Lint-only, no auto-fix: repairing a broken path reference means deciding
+# where the file went, which only a human knows.
+#
+# The trigger mirrors the linter's default scan set. The prompts under
+# `.claude/` are not in it — they carry illustrative example paths by design —
+# so a prompt edit does not fire this gate.
+
+on:
+  pull_request:
+    paths:
+      - 'CLAUDE.md'
+      - '*/CLAUDE.md'
+      - 'README.md'
+      - 'scouting/SETUP.md'
+      - 'context/**'
+      - 'linters/check-doc-links.py'
+      - '.github/workflows/check-doc-links.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: check-doc-links-${{ github.head_ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+      - name: Check doc path references resolve
+        run: python3 linters/check-doc-links.py

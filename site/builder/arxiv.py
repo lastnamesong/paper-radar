@@ -1,0 +1,570 @@
+"""Structural extraction from an arXiv HTML paper.
+
+`/analyze` rewrites from the paper itself, not from a summary of it — a summary
+drops most of what a first-time reader needs
+(preliminaries, curation detail, hardware, most figures). This module is what
+turns the 400 KB LaTeXML page into the sections, figures and tables the prompt
+works from.
+
+arXiv's HTML is LaTeXML output, which is far more tractable than a PDF: every
+section carries a stable `id` (`S3.SS1`), every figure carries the `id` that
+the rewrite's `figures:` front-matter records (`S1.F1`), and every formula
+keeps its TeX in `<math alttext>`. That last one matters most — the math
+survives the trip as `$…$` instead of being lost to entity soup.
+
+Stdlib only, so the prompts can run it without `pip install`. `html.parser`
+rather than a regex sweep: the caption of a figure routinely contains nested `<math>`,
+`<span>` and another `<figure>`, and matching that with regex is how you
+silently truncate a caption at the first `>`.
+
+Not every paper has an HTML edition — measured at 22/23 on a sample of this
+corpus. `fetch` raises `Unavailable` in that case, and the prompt is required
+to stop rather than fall back to a summary-based rewrite.
+"""
+
+from __future__ import annotations
+
+import re
+import sys
+import urllib.error
+import urllib.request
+from dataclasses import dataclass, field
+from html import unescape
+from html.parser import HTMLParser
+
+BASE = "https://arxiv.org/html"
+UA = "probe-analyze/1.0 (+https://github.com/jonghochoi/probe)"
+TIMEOUT = 30
+
+# `<section id="S3" class="ltx_section">` → level 1; SS → 2; SSS → 3.
+#
+# `ltx_appendix` sits at level 1 with the numbered sections: LaTeXML gives an
+# appendix its own top-level `<section>` (`A4`), and an appendix missing from
+# this map does not merely go unmapped — its body lands on whatever section is
+# still open (usually nothing, so it is dropped outright) and its `<h2>` title
+# overwrites the last section appended. That costs a rewrite the whole
+# appendix, limitations sections included, and nothing warns.
+#
+# `ltx_paragraph` is `\paragraph{Task.}` — the level the appendices of this
+# corpus are actually organised at, so it is a heading here rather than a bold
+# run leaking into the enclosing section's prose.
+_LEVEL = {
+    "ltx_section": 1, "ltx_appendix": 1,
+    "ltx_subsection": 2, "ltx_subsubsection": 3, "ltx_paragraph": 4,
+}
+# Which `<hN class="ltx_title_*">` sets a section title. Restricted on purpose:
+# `ltx_title_abstract` and `ltx_title_bibliography` are headings of blocks that
+# are NOT sections, and treating them as titles renames the section above them.
+_TITLE_OF = {
+    "ltx_title_section", "ltx_title_appendix", "ltx_title_subsection",
+    "ltx_title_subsubsection", "ltx_title_paragraph",
+}
+_DROP = {"script", "style", "noscript"}
+_HEADINGS = ("h1", "h2", "h3", "h4", "h5", "h6")
+_VERSIONED = re.compile(r"^(\d{4}\.\d{4,5})(v\d+)?$")
+_APPENDIX_ID = re.compile(r"^A\d+\b")
+
+
+class Unavailable(RuntimeError):
+    """No HTML edition for this paper (or the fetch failed)."""
+
+
+@dataclass
+class Section:
+    id: str
+    level: int
+    number: str          # "3.1" — the §-anchor a figure caption cites
+    title: str
+    text: str = ""
+
+    @property
+    def anchor(self) -> str:
+        return f"§{self.number}" if self.number else f"#{self.id}"
+
+
+@dataclass
+class Figure:
+    id: str              # "S1.F1" — goes verbatim into the rewrite front matter
+    url: str             # absolute; hotlinked, never mirrored (AUTHORING §2-6)
+    number: str          # "1", "3(a)"
+    caption: str
+    section: str = ""    # id of the enclosing section
+
+    @property
+    def linkable(self) -> bool:
+        """False only for a figure LaTeXML drew as inline `<svg>` — a TikZ/PGF
+        picture with no file behind it. A figure exported to a standalone
+        `.svg` and embedded with `<object data>` IS linkable and reads as one
+        here — conflating the two makes a paper's own diagrams look
+        unavailable.
+
+        An unlinkable figure still belongs in the list: the paper *has* it, and
+        the prompt needs to know it exists before deciding whether to redraw it
+        (R6) or leave the point unillustrated."""
+        return bool(self.url)
+
+
+@dataclass
+class Table:
+    id: str
+    number: str
+    caption: str
+    markdown: str
+    section: str = ""
+
+
+@dataclass
+class Paper:
+    id: str              # as fetched, e.g. "<arxiv-id>"
+    version: str         # "<arxiv-id>v<n>" — what `arxiv_html:` records
+    title: str
+    abstract: str
+    sections: list[Section] = field(default_factory=list)
+    figures: list[Figure] = field(default_factory=list)
+    tables: list[Table] = field(default_factory=list)
+
+    @property
+    def appendix(self) -> list[Section]:
+        """The appendix sections, in order — LaTeXML ids them `A<n>[.SS<m>]`.
+
+        Split out because the appendix is where this corpus keeps the things a
+        rewrite cannot be written without: the hardware rig, the training
+        recipe, the per-task tables, the algorithm listing, and — routinely —
+        the paper's own Limitations section. It is a source, not an annex, and
+        having to notice it in a flat section list is how it gets skipped.
+        """
+        return [s for s in self.sections if _APPENDIX_ID.match(s.id)]
+
+    @property
+    def body(self) -> list[Section]:
+        """The numbered sections — everything before the appendix."""
+        return [s for s in self.sections if not _APPENDIX_ID.match(s.id)]
+
+
+# ── Fetch ───────────────────────────────────────────────────────────────────
+
+def fetch(paper_id: str) -> tuple[str, str]:
+    """Return `(html, resolved_url)`. Raises `Unavailable` if there is none."""
+    m = _VERSIONED.match(paper_id.strip())
+    if not m:
+        raise Unavailable(f"not an arXiv id: {paper_id!r}")
+    url = f"{BASE}/{m.group(0)}"
+    req = urllib.request.Request(url, headers={"User-Agent": UA})
+    try:
+        with urllib.request.urlopen(req, timeout=TIMEOUT) as resp:
+            body = resp.read().decode("utf-8", errors="replace")
+            final = resp.geturl()
+    except urllib.error.HTTPError as exc:
+        raise Unavailable(f"{url} → HTTP {exc.code}") from exc
+    except OSError as exc:
+        raise Unavailable(f"{url} → {exc}") from exc
+
+    # arXiv answers 200 with a stub page for papers that have no HTML build,
+    # so a status check alone is not enough to know the paper is there.
+    if len(body) < 20_000 or "ltx_document" not in body:
+        raise Unavailable(f"{url} → no HTML edition (stub page)")
+    return body, final
+
+
+def resolve_version(html: str, paper_id: str) -> str:
+    """Recover the exact version from an asset path (`<id>v<n>/fig/x.png`)."""
+    m = re.search(rf"{re.escape(paper_id)}(v\d+)/", html)
+    return f"{paper_id}{m.group(1)}" if m else paper_id
+
+
+# ── Parse ───────────────────────────────────────────────────────────────────
+
+class _Extractor(HTMLParser):
+    def __init__(self, base_url: str) -> None:
+        super().__init__(convert_charrefs=True)
+        self.base = base_url.rstrip("/")
+        self.sections: list[Section] = []
+        self.figures: list[Figure] = []
+        self.tables: list[Table] = []
+        self.title = ""
+        self.abstract = ""
+
+        self._stack: list[str] = []          # open section ids
+        self._by_id: dict[str, Section] = {}
+        self._skip = 0                       # depth inside <math>/<script>
+        self._mode = ""                      # title | caption | abstract | doctitle
+        self._buf: list[str] = []
+        # A figure *stack*: `ltx_flex_figure` nests panel figures inside a
+        # parent that carries the real caption. A single slot would let the
+        # inner `</figure>` close the outer one and lose it.
+        self._figs: list[Figure] = []
+        self._tbl_rows: list[list[str]] = []
+        self._cell: list[str] | None = None
+        self._in_table = 0
+
+    # -- helpers ---------------------------------------------------------
+    @staticmethod
+    def _cls(attrs: dict) -> set[str]:
+        return set((attrs.get("class") or "").split())
+
+    @property
+    def _current(self) -> Section | None:
+        """The innermost OPEN section — not the last one appended.
+
+        Those differ whenever a parent has trailing prose after its last
+        subsection closes; keying off the stack puts that text back where the
+        author wrote it instead of appending it to the subsection above.
+        """
+        return self._by_id.get(self._stack[-1]) if self._stack else None
+
+    def _emit(self, text: str) -> None:
+        if self._cell is not None:
+            self._cell.append(text)
+        elif self._mode:
+            self._buf.append(text)
+        else:
+            section = self._current
+            if section is not None:
+                section.text += text
+
+    def _flush(self) -> str:
+        # `\s+`, not `[ \t]+`: a LaTeX title wrapped over three source lines
+        # keeps those newlines, and a title with hard breaks in it is unusable
+        # as a one-line label.
+        out = re.sub(r"\s+", " ", "".join(self._buf)).strip()
+        self._buf = []
+        return out
+
+    # -- tags ------------------------------------------------------------
+    def handle_starttag(self, tag, attrs):
+        a = dict(attrs)
+        cls = self._cls(a)
+
+        if tag in _DROP:
+            self._skip += 1
+            return
+        if self._skip:
+            if tag == "math":
+                self._skip += 1
+            return
+
+        if tag == "math":
+            # The rendered MathML is unreadable as text; the TeX source next to
+            # it is exactly what we want, so emit that and skip the subtree.
+            alt = a.get("alttext", "").strip()
+            if alt:
+                self._emit(f"${alt}$")
+            self._skip += 1
+            return
+
+        if tag == "section":
+            for name, level in _LEVEL.items():
+                if name in cls:
+                    sid = a.get("id", "") or f"_anon{len(self.sections)}"
+                    section = Section(id=sid, level=level, number="", title="")
+                    self._stack.append(sid)
+                    self._by_id[sid] = section
+                    self.sections.append(section)
+                    return
+
+        if tag in _HEADINGS and (cls & _TITLE_OF or "ltx_title_document" in cls):
+            self._mode = "doctitle" if "ltx_title_document" in cls else "title"
+            self._buf = []
+            return
+
+        if tag == "span" and "ltx_tag" in cls and self._mode in ("title", "caption"):
+            # `<span class="ltx_tag">3.1 </span>` — the number, kept apart from
+            # the title text so a caption can cite `(원문 §3.1)`.
+            self._mode += "-tag"
+            self._buf = []
+            return
+
+        if tag == "div" and "ltx_abstract" in cls:
+            self._mode = "abstract"
+            self._buf = []
+            return
+
+        if tag == "figure":
+            if "ltx_table" in cls:
+                self._in_table += 1
+                self._tbl_rows = []
+            self._figs.append(Figure(
+                id=a.get("id", ""), url="", number="", caption="",
+                section=self._stack[-1] if self._stack else "",
+            ))
+            return
+
+        # `<img src>` is the common case; `<object data>` / `<embed src>` is how
+        # LaTeXML embeds a figure exported as a standalone `.svg`. Those are
+        # ordinary files on arXiv and hotlink exactly like a PNG — reading only
+        # `<img>` reported a paper's pipeline and schedule diagrams as
+        # unlinkable, which pushed the rewrite into redrawing them by hand.
+        if tag in ("img", "object", "embed") and self._figs and not self._figs[-1].url:
+            src = a.get("src") or a.get("data") or ""
+            if src:
+                self._figs[-1].url = src if src.startswith("http") else f"{self.base}/{src}"
+            return
+
+        if tag == "figcaption":
+            self._mode = "caption"
+            self._buf = []
+            return
+
+        if tag in ("td", "th") and self._in_table:
+            self._cell = []
+            return
+        if tag == "tr" and self._in_table:
+            self._tbl_rows.append([])
+            return
+
+        if tag in ("p", "li", "div") and not self._mode:
+            self._emit("\n")
+
+    def handle_endtag(self, tag):
+        if self._skip:
+            if tag in _DROP or tag == "math":
+                self._skip -= 1
+            return
+
+        if tag in _HEADINGS and self._mode.startswith(("title", "doctitle")):
+            text = self._flush()
+            if self._mode.startswith("doctitle"):
+                self.title = self.title or text
+            elif self._current is not None:
+                self._current.title = text
+            self._mode = ""
+            return
+
+        if tag == "span" and self._mode.endswith("-tag"):
+            tagtext = self._flush().strip()
+            base = self._mode[: -len("-tag")]
+            if base == "title" and self._current is not None:
+                self._current.number = tagtext
+            elif base == "caption" and self._figs:
+                # "Figure 3:" / "Table 1:" → "3" / "1"
+                m = re.search(r"([\d.]+[a-z]?)", tagtext)
+                self._figs[-1].number = m.group(1) if m else tagtext
+            self._mode = base
+            return
+
+        if tag == "div" and self._mode == "abstract":
+            self.abstract = self._flush()
+            self._mode = ""
+            return
+
+        if tag == "figcaption":
+            if self._figs:
+                self._figs[-1].caption = self._flush()
+            self._mode = ""
+            return
+
+        if tag in ("td", "th") and self._cell is not None:
+            cell = re.sub(r"\s+", " ", "".join(self._cell)).strip()
+            if self._tbl_rows:
+                self._tbl_rows[-1].append(cell)
+            self._cell = None
+            return
+
+        if tag == "figure":
+            if not self._figs:
+                return
+            fig = self._figs.pop()
+            if self._in_table:
+                self._in_table -= 1
+                self.tables.append(Table(
+                    id=fig.id, number=fig.number, caption=fig.caption,
+                    markdown=_as_markdown(self._tbl_rows), section=fig.section,
+                ))
+                self._tbl_rows = []
+            else:
+                self.figures.append(fig)
+            return
+
+        if tag == "section" and self._stack:
+            self._stack.pop()
+
+    def handle_data(self, data):
+        if not self._skip:
+            self._emit(data)
+
+
+def _as_markdown(rows: list[list[str]]) -> str:
+    rows = [r for r in rows if any(c for c in r)]
+    if not rows:
+        return ""
+    width = max(len(r) for r in rows)
+    rows = [r + [""] * (width - len(r)) for r in rows]
+    head, *body = rows
+    out = ["| " + " | ".join(c.replace("|", "\\|") for c in head) + " |",
+           "|" + "---|" * width]
+    out += ["| " + " | ".join(c.replace("|", "\\|") for c in r) + " |" for r in body]
+    return "\n".join(out)
+
+
+def parse(html: str, paper_id: str) -> Paper:
+    version = resolve_version(html, paper_id.split("v")[0])
+    # Asset srcs are already version-prefixed ("<id>v<n>/fig/x.png") and
+    # resolve against /html/, not against the paper page itself.
+    ex = _Extractor(BASE)
+    ex.feed(html)
+    for s in ex.sections:
+        s.text = re.sub(r"\n{3,}", "\n\n", re.sub(r"[ \t]+", " ", s.text)).strip()
+    return Paper(
+        id=paper_id, version=version, title=ex.title, abstract=ex.abstract,
+        sections=[s for s in ex.sections if s.title or s.text],
+        figures=ex.figures, tables=ex.tables,
+    )
+
+
+def load(paper_id: str) -> Paper:
+    html, _ = fetch(paper_id)
+    return parse(html, paper_id)
+
+
+def grep(paper: Paper, pattern: str) -> list[tuple[str, str]]:
+    """`(where, line)` for every line of the original matching `pattern`.
+
+    How a number read off a rewrite is checked against the paper: the abstract,
+    every section and every table, searched line by line, each hit carrying the
+    §-anchor or table number a citation names.
+    """
+    rx = re.compile(pattern, re.I)
+    blocks = [("abstract", paper.abstract)]
+    blocks += [(s.anchor, s.text) for s in paper.sections]
+    blocks += [(f"Table {t.number}", f"{t.caption}\n{t.markdown}") for t in paper.tables]
+    return [(where, line.strip()) for where, text in blocks
+            for line in text.splitlines() if rx.search(line)]
+
+
+# A bibliography entry and an arXiv id inside it. An id encodes the month its
+# first version was posted (`2406.04806` is June 2024), which is how a prior
+# the paper names is dated. An entry is one `<li>` with no list nested in it,
+# so it is cut out by its id rather than walked by the parser — the entry is
+# read as flat text either way.
+_BIB_ITEM = re.compile(r'<li[^>]*\bid="bib\.bib\d+"[^>]*>(.*?)</li>', re.S)
+_BIB_ID = re.compile(r"(?<![\d.])(\d{2})(0[1-9]|1[0-2])\.\d{4,5}(?:v\d+)?(?![\d])")
+
+
+def bibliography(html: str) -> list[str]:
+    """Every bibliography entry as one line of text, with the first-version
+    month of the arXiv id it gives, when it gives one — the venue year is all
+    an entry without one can be dated by."""
+    out = []
+    for body in _BIB_ITEM.findall(html):
+        text = re.sub(r"\s+", " ", unescape(re.sub(r"<[^>]+>", " ", body))).strip()
+        text = re.sub(r"\s+([,.;:)])", r"\1", text)
+        m = _BIB_ID.search(text)
+        out.append(text + (f"  → arXiv {m.group(0)} · 20{m.group(1)}.{m.group(2)}"
+                           if m else "  → no arXiv id · venue year"))
+    return out
+
+
+def find_sections(paper: Paper, anchor: str) -> list[Section]:
+    """The section `anchor` names and every section under it, in order.
+
+    `anchor` is any of the forms a caption or a rewrite cites: the LaTeXML id
+    (`S3.SS2`, `A2`), the printed number (`3.2`), or the anchor this module
+    prints (`§3.2`). A numbered section's subsections come with it, so asking
+    for `§4` returns the whole of section 4.
+    """
+    key = anchor.strip().lstrip("§#")
+    hit = next((s for s in paper.sections if s.id == key or s.number == key), None)
+    if hit is None:
+        return []
+    prefix = hit.id + "."
+    return [s for s in paper.sections if s.id == hit.id or s.id.startswith(prefix)]
+
+
+def _main(argv: list[str]) -> int:
+    """`python3 -m builder.arxiv <arxiv-id> [--grep REGEX] [--tables] [--section <anchor> ...] [--bib]`
+
+    Bare, it prints the index: the section tree (body and appendix apart),
+    then every figure with the URL it hotlinks from — read from the page's own
+    `<img>`, whatever the file is called — so the inventory a rewrite takes
+    its figures from is one command rather than a grep for a
+    filename pattern. `--grep` prints every line of the original matching a
+    pattern, with its §. `--tables` prints every table in full, caption first,
+    as Markdown; `--section` prints a section's text, subsections included.
+    Every number a rewrite states is confirmed in one of these two.
+    `--bib` prints the bibliography, one entry a line, each with the arXiv id
+    it gives and that id's first-version month — the date a prior is placed
+    at.
+    """
+    import argparse
+
+    ap = argparse.ArgumentParser(prog="python3 -m builder.arxiv",
+                                 description=_main.__doc__.split("\n")[0])
+    ap.add_argument("paper_id")
+    ap.add_argument("--grep", metavar="REGEX",
+                    help="print every line of the original matching REGEX, with its §")
+    ap.add_argument("--tables", action="store_true",
+                    help="print every table, caption and body, as Markdown")
+    ap.add_argument("--section", action="append", default=[], metavar="ANCHOR",
+                    help="print one section's text (id, number or §anchor); repeatable")
+    ap.add_argument("--bib", action="store_true",
+                    help="print the bibliography, with each arXiv id's first-version month")
+    args = ap.parse_args(argv)
+    if args.bib:
+        try:
+            html, _ = fetch(args.paper_id)
+        except Unavailable as exc:
+            print(f"unavailable: {exc}", file=sys.stderr)
+            return 1
+        print("\n".join(bibliography(html)))
+        return 0
+    try:
+        paper = load(args.paper_id)
+    except Unavailable as exc:
+        # A traceback here would read as a bug in this script; it is a fact
+        # about the paper, and the caller must stop rather than fall back.
+        print(f"unavailable: {exc}", file=sys.stderr)
+        return 1
+
+    if args.grep:
+        print(paper.version)
+        for where, line in grep(paper, args.grep):
+            print(f"  {where:12} {line}")
+        return 0
+    if args.tables or args.section:
+        for anchor in args.section:
+            found = find_sections(paper, anchor)
+            if not found:
+                print(f"no section {anchor!r} — the index lists the anchors",
+                      file=sys.stderr)
+                return 1
+            for sec in found:
+                print(f"{'#' * min(sec.level + 1, 6)} {sec.anchor} {sec.title}\n")
+                print(sec.text + "\n")
+        if args.tables:
+            for t in paper.tables:
+                print(f"── Table {t.number} ({t.id}) ──")
+                print(t.caption.lstrip(": ") + "\n")
+                print((t.markdown or "(no cells — the table is an image)") + "\n")
+        return 0
+
+    linkable = [f for f in paper.figures if f.linkable]
+    appendix = paper.appendix
+    print(f"{paper.version}  {paper.title}")
+    print(f"  abstract {len(paper.abstract)} chars · "
+          f"{len(paper.sections)} sections ({len(appendix)} in the appendix) · "
+          f"{len(paper.figures)} figures ({len(linkable)} linkable) · "
+          f"{len(paper.tables)} tables\n")
+    for group, label in ((paper.body, "본문"), (appendix, "부록")):
+        if not group:
+            continue
+        print(f"  ── {label} ──")
+        for s in group:
+            print(f"  {'  ' * (s.level - 1)}{s.anchor:11} {s.title[:54]:56} "
+                  f"{len(s.text):6} chars")
+        print()
+    print("  ── 그림 ──")
+    for f in paper.figures:
+        # An unlinkable figure is a decision to make, not a line to skim past:
+        # R6 wants the paper's own figure wherever one exists.
+        print(f"  {f.id:12} Fig {f.number:4} "
+              f"{f.url or '— inline SVG, no file to hotlink (R6: redraw or skip)'}")
+        print(f"  {'':12} {' ' * 8} {f.caption.lstrip(': ')[:110]}")
+    if paper.tables:
+        print("\n  ── 표 ── (본문은 --tables)")
+        for t in paper.tables:
+            print(f"  {t.id:12} Tab {t.number:4} {t.caption.lstrip(': ')[:100]}")
+    return 0
+
+
+if __name__ == "__main__":  # `python3 -m builder.arxiv <arxiv-id> [--grep …] [--tables] [--section …] [--bib]`
+    sys.exit(_main(sys.argv[1:]))
