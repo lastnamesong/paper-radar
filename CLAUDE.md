@@ -39,6 +39,7 @@ file the row points at.
 | `scouting/` | agent | One run per date — a report per pillar, `P#/YYYY-MM-DD.md`, and the run file `runs/YYYY-MM-DD.md`, filling `scouting/templates/` — the site merges a run into one page |
 | `scouting/AUTHORING.md` | human | Format contract for scouting reports |
 | `scouting/SETUP.md` | human | Operator guide for the scheduled scouting routine |
+| `scouting/notify-telegram.py` | human | Sends a run's top three papers (title, authors, date, summary, reason, score, link) to Telegram; reads `TELEGRAM_BOT_TOKEN` and `TELEGRAM_CHAT_ID` from the environment |
 | `analysis/` | agent | The site's corpus — one `<arxiv-id>.md` per paper from `/analyze`, a Korean rewrite of the arXiv HTML original |
 | `analysis/AUTHORING.md` | human | Format contract for `analysis/<id>.md` |
 | `comparison/` | agent | One `<slug>.md` per comparison from `/compare` — two or three rewritten papers under one question |
