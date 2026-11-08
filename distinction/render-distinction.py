@@ -62,7 +62,7 @@ sys.path.insert(0, os.path.join(_REPO_ROOT, "site"))
 from builder import charts  # noqa: E402  (standard library only)
 from builder.decisions import harvest_decisions  # noqa: E402
 
-_SITE = "https://jonghochoi.github.io/probe/"
+_SITE = "https://lastnamesong.github.io/paper-radar/"
 _ASSETS = os.path.join(_REPO_ROOT, "site", "builder", "assets")
 
 _ERRATA = ("틀림", "과장", "원문 없음", "맞음")

@@ -1,6 +1,6 @@
 <div align="center">
 
-<a href="https://jonghochoi.github.io/probe/"><picture><source media="(prefers-color-scheme: dark)" srcset="assets/hero-dark.svg"><img src="assets/hero.svg" width="880" alt="PROBE — Stop drowning in arXiv. PROBE marks the target. Open the reading site."></picture></a>
+<a href="https://lastnamesong.github.io/paper-radar/"><picture><source media="(prefers-color-scheme: dark)" srcset="assets/hero-dark.svg"><img src="assets/hero.svg" width="880" alt="PROBE — Stop drowning in arXiv. PROBE marks the target. Open the reading site."></picture></a>
 
 </div>
 
@@ -55,3 +55,4 @@ holds one pillar's decision log, tracked literature and anti-topics.
 ---
 
 Derived from [jonghochoi/probe](https://github.com/jonghochoi/probe) (MIT License, Copyright (c) 2026 jonghochoi). Pillars, context and terminology are adapted to wearable robotics and tactile dexterous manipulation.
+Maintained by [Eunseok Song](https://www.linkedin.com/in/eunseok-song/).

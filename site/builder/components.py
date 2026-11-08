@@ -14,7 +14,7 @@ from . import assets_out
 # Where the repository lives. The nav links it on every page, and `pages.py`
 # builds the blob and Discussions URLs off the same string — one name for the
 # one place the site's source, its context files and its threads all are.
-REPO = "jonghochoi/probe"
+REPO = "lastnamesong/paper-radar"
 REPO_URL = f"https://github.com/{REPO}"
 RAW_URL = f"https://raw.githubusercontent.com/{REPO}/main"
 # The deployed root. Pages are linked relatively (see `page()`), but a link

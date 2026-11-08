@@ -33,7 +33,7 @@ from html import unescape
 from html.parser import HTMLParser
 
 BASE = "https://arxiv.org/html"
-UA = "probe-analyze/1.0 (+https://github.com/jonghochoi/probe)"
+UA = "probe-analyze/1.0 (+https://github.com/lastnamesong/paper-radar)"
 TIMEOUT = 30
 
 # `<section id="S3" class="ltx_section">` → level 1; SS → 2; SSS → 3.
