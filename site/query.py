@@ -330,7 +330,7 @@ def cmd_pairs(cat: dict, a, docs: dict) -> None:
         })
     first, second = ("score", "contrast") if a.by == "score" else ("contrast", "score")
     rows.sort(key=lambda r: (-r[first], -r[second], r["row"][0], r["row"][2]))
-    if not rows and a.by == "contrast":
+    if not rows and a.by == "contrast" and pool:  # an empty pool has no pair to miss
         sys.exit(f"query: no uncovered pair shares a Decision-Log code cited by "
                  f"{narrow_df} rewrites or fewer — `--by score` ranks the rest")
     emit(
