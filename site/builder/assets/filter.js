@@ -28,7 +28,7 @@
  * block — which is the first paper, printed rather than listed — is the first
  * paper of the first page, and its own row stands down while it is.
  *
- * Only one 연구 축 is on at a time: an axis is where a paper is filed, so
+ * Only one 연구 분야 is on at a time: an axis is where a paper is filed, so
  * two of them at once is not a narrower question but a vaguer one, and the
  * union it returns reads as no filter at all. Pressing the axis that is
  * already on turns it off.

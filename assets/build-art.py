@@ -104,6 +104,8 @@ HERO_CSS = f"""
     .line  {{ fill: ${{INK}}; font: 500 18px {SANS}; }}
     .sub   {{ fill: ${{MUTED}}; font: 14px {SANS}; }}
     .count {{ fill: ${{MUTED}}; font: 12px {SANS}; }}
+    .btn   {{ fill: ${{INK}}; }}
+    .btn-t {{ fill: ${{CARD}}; font: 600 14px {SANS}; }}
     .band  {{ fill: ${{SIGNAL}}; opacity: .14;
               animation: sweep {CYCLE}s linear infinite; }}
     @keyframes sweep {{ 0% {{ transform: translateX(0); }}
@@ -111,7 +113,7 @@ HERO_CSS = f"""
                        {SWEEP_END * 100 + 1:.0f}%, 100% {{ transform: translateX({COLS * PITCH}px); opacity: 0; }} }}"""
 
 
-def hero(name_line: str, sub: str, count: str, label: str) -> str:
+def hero(name_line: str, sub: str, count: str, label: str, button: str, bw: int) -> str:
     W, H = 880, 280
     picks, css = [], []
     for k, (r, c) in enumerate(PICKS):
@@ -133,6 +135,8 @@ def hero(name_line: str, sub: str, count: str, label: str) -> str:
         f'<text class="name" x="142" y="112">paper-radar</text>',
         f'<text class="line" x="64" y="170">{name_line}</text>',
         f'<text class="sub" x="64" y="198">{sub}</text>',
+        f'<rect class="btn" x="64" y="218" width="{bw}" height="36" rx="18"/>',
+        f'<text class="btn-t" x="{64 + bw / 2}" y="241" text-anchor="middle">{button}</text>',
         f'<rect class="band" x="{FIELD_X - PITCH}" y="{FIELD_Y + 6}" width="{PITCH}" height="{band_h}" rx="{PITCH / 2}"/>',
         rest, "".join(picks),
         f'<text class="count" x="{FIELD_X - PITCH / 2}" y="{H - 28}">{count}</text>'])
@@ -142,13 +146,15 @@ def hero(name_line: str, sub: str, count: str, label: str) -> str:
 def hero_en() -> str:
     return hero("A literature radar for research.", "Scouted every morning, read in Korean.",
                 "Dozens of new papers a day; a few pressed for you.",
-                "paper-radar — a literature radar for research, scouted every morning and read in Korean.")
+                "paper-radar — a literature radar for research, scouted every morning and read in Korean. "
+                "Open the reading site.", "Open the reading site", 196)
 
 
 def hero_ko() -> str:
     return hero("연구를 위한 논문 레이더.", "매일 아침 스카우팅하고, 한국어로 읽습니다.",
                 "하루 수십 편 가운데, 몇 편만 눌러 둡니다.",
-                "paper-radar — 연구를 위한 논문 레이더. 매일 아침 스카우팅하고, 한국어로 읽습니다.")
+                "paper-radar — 연구를 위한 논문 레이더. 매일 아침 스카우팅하고, 한국어로 읽습니다. "
+                "읽기 사이트 열기.", "읽기 사이트 열기", 156)
 
 
 # ── own ───────────────────────────────────────────────────────────────
@@ -188,7 +194,7 @@ def own() -> str:
          f'<rect class="matte" x="{cx+5}" y="{TOP+5}" width="{cw-10}" height="{FH-10}" rx="4"/>',
          f'<text class="p" x="{cx+20}" y="{mid-12}">context/</text>',
          f'<text class="ps" x="{cx+20}" y="{mid+10}">MASTER.md</text>',
-         f'<text class="ps" x="{cx+20}" y="{mid+28}">P#.md, one per pillar</text>',
+         f'<text class="ps" x="{cx+20}" y="{mid+28}">P#.md, one per research area</text>',
          f'<path class="wire" d="M{wx} {mid} H{tip - 8}"/><path class="head" d="M{tip} {mid} l-8 -4.5 v9 Z"/>',
          f'<text class="note" x="{(wx + tip) / 2}" y="{mid-10}" text-anchor="middle">reads</text>',
          taxels(mx + pitch / 2, mid - ms / 2 + pitch / 2, pitch),

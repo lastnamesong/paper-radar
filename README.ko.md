@@ -10,12 +10,10 @@
 [![License: MIT](https://img.shields.io/badge/license-MIT-3D7DCA?style=flat-square)](LICENSE)
 [![Built with Claude Code](https://img.shields.io/badge/built_with-Claude_Code-D97757?style=flat-square)](https://claude.com/claude-code)
 
-![P0](https://img.shields.io/badge/P0-wearable_robots_%26_sensors-2E8B7A?style=flat-square)
+![P0](https://img.shields.io/badge/P0-wearables_%26_biomechanics-2E8B7A?style=flat-square)
 ![P1](https://img.shields.io/badge/P1-tactile_%26_dexterous_manipulation-7A5CC2?style=flat-square)
 ![Scouting](https://img.shields.io/badge/scouting-daily_07%3A00_KST-555?style=flat-square)
 ![Language](https://img.shields.io/badge/reports-한국어-555?style=flat-square)
-
-**[읽기 사이트 열기 →](https://lastnamesong.github.io/paper-radar/)**
 
 </div>
 
@@ -27,12 +25,12 @@
 따라 움직이는가를 위한 논문 레이더입니다. 매일 아침 예약된
 [Claude Code](https://claude.com/claude-code) 루틴이 arXiv와 Semantic
 Scholar에서 최근 2주의 논문을 훑고, `context/`에 적힌 열린 결정들을 기준으로
-점수를 매긴 뒤, 연구 축마다 한국어 리포트를 하나씩 커밋합니다.
+점수를 매긴 뒤, 연구 분야마다 한국어 리포트를 하나씩 커밋합니다.
 [읽기 사이트](https://lastnamesong.github.io/paper-radar/)가 이를 게시합니다.
 
-| 연구 축 | 다루는 범위 |
+| 연구 분야 | 다루는 범위 |
 |---|---|
-| **P0** — Wearable Robots & Sensors | 외골격·엑소슈트, 보조력 제어, 웨어러블 센싱(IMU, EMG, 인솔 압력, e-skin), 의도·보행 추정 |
+| **P0** — Wearable Robots, Sensors & Biomechanics | 외골격·엑소슈트, 보조력 제어, 웨어러블 센싱(IMU, EMG, 인솔 압력, e-skin), 의도·보행 추정, 인체 생체역학(관절 동역학, 근골격 모델링, 대사 비용) |
 | **P1** — Tactile Sensing & Dexterous Manipulation | 비전 기반·어레이·e-skin 촉각 센서, vision-tactile-language-action(VTLA) 정책, 다지 손의 in-hand 조작 |
 
 리포트는 `scouting/P0/`와 `scouting/P1/`에 쌓이고, 끝까지 읽을 가치가 있는
@@ -52,7 +50,7 @@ Scholar에서 최근 2주의 논문을 훑고, `context/`에 적힌 열린 결�
 | "누군가 이미 해 봤겠지" | **Ideation** — 아직 안 해 본 아이디어와, 그것을 반박하는 방법 |
 
 모든 리라이트는 초록이 아니라 arXiv 원문에서 출발합니다. 모든 판단은 내 연구
-축과 Decision Log를 기준으로 내립니다. 그리고 전부 한국어로, 읽기 사이트에 함께
+분야와 Decision Log를 기준으로 내립니다. 그리고 전부 한국어로, 읽기 사이트에 함께
 게시됩니다.
 
 </details>
@@ -63,12 +61,12 @@ Scholar에서 최근 2주의 논문을 훑고, `context/`에 적힌 열린 결�
 
 <picture><source media="(prefers-color-scheme: dark)" srcset="assets/own-dark.svg"><img src="assets/own.svg" width="880" alt="누가 무엇을 쓰는가: 나는 context/를 쓰고, paper-radar는 그것을 읽어 scouting/, analysis/, comparison/을 쓴다. context/의 변경은 제안으로 나에게 온다."></picture>
 
-`context/MASTER.md`는 연구 축을 가로지르는 내용을, 각 `context/P#.md`는 한
-연구 축의 Decision Log, 추적 문헌, 제외 주제(anti-topics)를 담습니다.
+`context/MASTER.md`는 연구 분야를 가로지르는 내용을, 각 `context/P#.md`는 한
+연구 분야의 Decision Log, 추적 문헌, 제외 주제(anti-topics)를 담습니다.
 
 | 트랙 | [Claude Code](https://claude.com/claude-code)에서 실행 | 결과물 |
 |:---:|---|---|
-| <picture><source media="(prefers-color-scheme: dark)" srcset="assets/track-scouting-dark.svg"><img src="assets/track-scouting.svg" height="64" alt="scouting"></picture><br><sub><b>Scouting</b></sub> | 예약 실행, 한 번에 모든 연구 축 — [설정](scouting/SETUP.md) · `/scout [pillars]` | `scouting/P#/<date>.md`와 `scouting/runs/<date>.md` — [형식](scouting/AUTHORING.md) |
+| <picture><source media="(prefers-color-scheme: dark)" srcset="assets/track-scouting-dark.svg"><img src="assets/track-scouting.svg" height="64" alt="scouting"></picture><br><sub><b>Scouting</b></sub> | 예약 실행, 한 번에 모든 연구 분야 — [설정](scouting/SETUP.md) · `/scout [areas]` | `scouting/P#/<date>.md`와 `scouting/runs/<date>.md` — [형식](scouting/AUTHORING.md) |
 | <picture><source media="(prefers-color-scheme: dark)" srcset="assets/track-analysis-dark.svg"><img src="assets/track-analysis.svg" height="64" alt="analysis — 렌즈 아래의 점 하나"></picture><br><sub><b>Analysis</b></sub> | `/analyze <arXiv id>`, 이어서 원문·코드와 대조하는 반복 검수 `/proofread <id>` | `analysis/<id>.md` — [형식](analysis/AUTHORING.md) |
 | <picture><source media="(prefers-color-scheme: dark)" srcset="assets/track-comparison-dark.svg"><img src="assets/track-comparison.svg" height="64" alt="comparison — 점 하나가 다른 두 판독"></picture><br><sub><b>Comparison</b></sub> | `/compare <id> <id> [<id>]` | `comparison/<slug>.md` — [형식](comparison/AUTHORING.md) |
 | <picture><source media="(prefers-color-scheme: dark)" srcset="assets/track-ideation-dark.svg"><img src="assets/track-ideation.svg" height="64" alt="ideation"></picture><br><sub><b>Ideation</b></sub> | `/ideate [<id \| alias \| topic>]` | 레포에는 아무것도 남지 않음 — 채팅 답변과, 답을 적는 비공개 페이지 |
@@ -88,5 +86,5 @@ Scholar에서 최근 2주의 논문을 훑고, `context/`에 적힌 열린 결�
 
 ---
 
-[jonghochoi/probe](https://github.com/jonghochoi/probe)(MIT License, Copyright (c) 2026 jonghochoi)에서 파생했습니다. 연구 축, 맥락, 용어를 웨어러블 로보틱스와 촉각 정밀 조작에 맞게 바꿨습니다.
+[jonghochoi/probe](https://github.com/jonghochoi/probe)(MIT License, Copyright (c) 2026 jonghochoi)에서 파생했습니다. 연구 분야, 맥락, 용어를 웨어러블 로보틱스와 촉각 정밀 조작에 맞게 바꿨습니다.
 관리: [Eunseok Song](https://www.linkedin.com/in/eunseok-song/).

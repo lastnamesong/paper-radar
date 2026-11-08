@@ -63,7 +63,7 @@ story — tie → what the paper is → what it means for us → what to check:
 one line — about 40 characters and never more than 50 — and the bullets
 after it carry the detail. The site prints the two headlines where a reader
 scans: (b)'s on the paper's closed row, (c)'s as the pillar's line under
-`연구 축별로 왜`, each cut to two lines and opening to the rest. A headline
+`연구 분야별로 왜`, each cut to two lines and opening to the rest. A headline
 that needs a clause for its evidence moves the evidence to the next bullet.
 
 #### The paper brief
@@ -282,7 +282,7 @@ shaped like a code (`D4RT`) goes in a code span, which the lint reads past.
 | VLM pretraining preservation | VLM 사전학습 보존 |
 | Action expert | 액션 전문가 |
 | Flow matching | 플로우 매칭 |
-| Pillar (`P#`) | 연구 축 — never 필라 |
+| Pillar (`P#`) | 연구 분야 — never 필라 |
 
 ### 4-3. Section headers are fixed strings
 

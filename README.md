@@ -10,12 +10,10 @@
 [![License: MIT](https://img.shields.io/badge/license-MIT-3D7DCA?style=flat-square)](LICENSE)
 [![Built with Claude Code](https://img.shields.io/badge/built_with-Claude_Code-D97757?style=flat-square)](https://claude.com/claude-code)
 
-![P0](https://img.shields.io/badge/P0-wearable_robots_%26_sensors-2E8B7A?style=flat-square)
+![P0](https://img.shields.io/badge/P0-wearables_%26_biomechanics-2E8B7A?style=flat-square)
 ![P1](https://img.shields.io/badge/P1-tactile_%26_dexterous_manipulation-7A5CC2?style=flat-square)
 ![Scouting](https://img.shields.io/badge/scouting-daily_07%3A00_KST-555?style=flat-square)
 ![Language](https://img.shields.io/badge/reports-한국어-555?style=flat-square)
-
-**[Open the reading site →](https://lastnamesong.github.io/paper-radar/)**
 
 </div>
 
@@ -27,12 +25,12 @@
 or a hand senses contact and acts on it. Every morning a scheduled
 [Claude Code](https://claude.com/claude-code) routine sweeps arXiv and
 Semantic Scholar for the last two weeks of papers, scores them against the
-open decisions in `context/`, and commits one Korean report per pillar. The
+open decisions in `context/`, and commits one Korean report per research area. The
 [reading site](https://lastnamesong.github.io/paper-radar/) publishes them.
 
-| Pillar | Covers |
+| Research area | Covers |
 |---|---|
-| **P0** — Wearable Robots & Sensors | Exoskeletons and exosuits, assistance control, wearable sensing (IMU, EMG, insole pressure, e-skin), intent and gait estimation |
+| **P0** — Wearable Robots, Sensors & Biomechanics | Exoskeletons and exosuits, assistance control, wearable sensing (IMU, EMG, insole pressure, e-skin), intent and gait estimation, human biomechanics (joint kinetics, musculoskeletal modelling, metabolic cost) |
 | **P1** — Tactile Sensing & Dexterous Manipulation | Vision-based, array and e-skin tactile sensors, vision-tactile-language-action (VTLA) policies, multi-fingered in-hand manipulation |
 
 The reports land in `scouting/P0/` and `scouting/P1/`; the papers worth a full
@@ -52,7 +50,7 @@ read become rewrites in `analysis/`.
 | "Surely someone has tried this" | **Ideation** — the untried idea, and how to refute it |
 
 Every rewrite starts from the arXiv original, not the abstract. Every judgement
-is made against your own pillars and Decision Log. All of it publishes
+is made against your own research areas and Decision Log. All of it publishes
 together, in Korean, on the reading site.
 
 </details>
@@ -63,12 +61,12 @@ together, in Korean, on the reading site.
 
 <picture><source media="(prefers-color-scheme: dark)" srcset="assets/own-dark.svg"><img src="assets/own.svg" width="880" alt="Who writes what: you write context/, and paper-radar reads it and writes scouting/, analysis/ and comparison/. Changes to context/ come to you as proposals."></picture>
 
-`context/MASTER.md` holds what cuts across pillars, and each `context/P#.md`
-holds one pillar's decision log, tracked literature and anti-topics.
+`context/MASTER.md` holds what cuts across research areas, and each `context/P#.md`
+holds one research area's decision log, tracked literature and anti-topics.
 
 | Track | You run in [Claude Code](https://claude.com/claude-code) | It writes |
 |:---:|---|---|
-| <picture><source media="(prefers-color-scheme: dark)" srcset="assets/track-scouting-dark.svg"><img src="assets/track-scouting.svg" height="64" alt="scouting"></picture><br><sub><b>Scouting</b></sub> | scheduled, every pillar in one run — [setup](scouting/SETUP.md) · `/scout [pillars]` | `scouting/P#/<date>.md` and `scouting/runs/<date>.md` — [format](scouting/AUTHORING.md) |
+| <picture><source media="(prefers-color-scheme: dark)" srcset="assets/track-scouting-dark.svg"><img src="assets/track-scouting.svg" height="64" alt="scouting"></picture><br><sub><b>Scouting</b></sub> | scheduled, every research area in one run — [setup](scouting/SETUP.md) · `/scout [areas]` | `scouting/P#/<date>.md` and `scouting/runs/<date>.md` — [format](scouting/AUTHORING.md) |
 | <picture><source media="(prefers-color-scheme: dark)" srcset="assets/track-analysis-dark.svg"><img src="assets/track-analysis.svg" height="64" alt="analysis — one taxel under a lens"></picture><br><sub><b>Analysis</b></sub> | `/analyze <arXiv id>`, then `/proofread <id>` for looped passes against the original and its code | `analysis/<id>.md` — [format](analysis/AUTHORING.md) |
 | <picture><source media="(prefers-color-scheme: dark)" srcset="assets/track-comparison-dark.svg"><img src="assets/track-comparison.svg" height="64" alt="comparison — two readings, one taxel apart"></picture><br><sub><b>Comparison</b></sub> | `/compare <id> <id> [<id>]` | `comparison/<slug>.md` — [format](comparison/AUTHORING.md) |
 | <picture><source media="(prefers-color-scheme: dark)" srcset="assets/track-ideation-dark.svg"><img src="assets/track-ideation.svg" height="64" alt="ideation"></picture><br><sub><b>Ideation</b></sub> | `/ideate [<id \| alias \| topic>]` | nothing in the repo — a chat answer, and a private page you answer on |
@@ -88,5 +86,5 @@ holds one pillar's decision log, tracked literature and anti-topics.
 
 ---
 
-Derived from [jonghochoi/probe](https://github.com/jonghochoi/probe) (MIT License, Copyright (c) 2026 jonghochoi). Pillars, context and terminology are adapted to wearable robotics and tactile dexterous manipulation.
+Derived from [jonghochoi/probe](https://github.com/jonghochoi/probe) (MIT License, Copyright (c) 2026 jonghochoi). Research areas, context and terminology are adapted to wearable robotics, biomechanics and tactile dexterous manipulation.
 Maintained by [Eunseok Song](https://www.linkedin.com/in/eunseok-song/).

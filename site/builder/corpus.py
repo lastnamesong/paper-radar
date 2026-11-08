@@ -58,16 +58,16 @@ ALIAS_MAX = 24
 # `PILLAR_LABELS` — so a query in the paper's own English still finds its
 # axis.
 PILLAR_NAMES = {
-    "P0": "Wearable Robots & Sensors",
+    "P0": "Wearable Robots, Sensors & Biomechanics",
     "P1": "Tactile Sensing & Dexterous Manipulation",
 }
 # What every reader-facing surface prints for an axis — the rail facet and the
-# `연구 축별` separator. Short enough to sit on one line in a 13.5rem column,
+# `연구 분야별` separator. Short enough to sit on one line in a 13.5rem column,
 # and the axis as a reader would name it rather than as the pillar file titles
 # it. Its keys are PILLAR_NAMES's; the build refuses to start on a mismatch, so
 # a pillar cannot be added to one and forgotten in the other.
 PILLAR_LABELS = {
-    "P0": "웨어러블 · 외골격",
+    "P0": "웨어러블 · 생체역학",
     "P1": "촉각 · 능숙한 조작",
 }
 if PILLAR_LABELS.keys() != PILLAR_NAMES.keys():

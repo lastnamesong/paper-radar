@@ -196,7 +196,7 @@ html.js .search-go:disabled { color: var(--text-muted); cursor: default; }
    leaves the eye on the list the view is of.
 
    What it costs is that the alternatives are no longer on screen — a reader
-   sees 최신순 and has to open the chip to learn 연구 축별 exists. The chip
+   sees 최신순 and has to open the chip to learn 연구 분야별 exists. The chip
    naming its group (`filter.js` writes `정렬: 최신순` into its `aria-label`)
    is what keeps that one press away rather than a guess.
 
@@ -365,7 +365,7 @@ html.js .rail {
 
    Both are drawn *inside* the 9px slot rather than replacing it: the slot is
    what makes the labels start on one line, down the group and across to the
-   연구 축 swatches under it. Both are shapes rather than characters, and the
+   연구 분야 swatches under it. Both are shapes rather than characters, and the
    star is why. A ★ is a text node wider than its slot, and neither inline flow
    nor grid centring will straddle a box over a track it overflows — both put
    it at the start edge — so a glyph lands right of the axis the dot keeps, by
@@ -615,7 +615,7 @@ html.js .rowstar, html.js .lh-star { display: block; }
 }
 .row-pillars { display: flex; flex-wrap: wrap; gap: .2rem; }
 
-/* The 연구 축 separator — only the `연구 축별` sort shows these. */
+/* The 연구 분야 separator — only the `연구 분야별` sort shows these. */
 .rsep {
   display: flex; align-items: baseline; gap: .5rem;
   padding: 1.3rem .35rem .45rem; border-bottom: 1px solid var(--border);

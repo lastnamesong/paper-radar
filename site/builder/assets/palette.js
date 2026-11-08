@@ -59,7 +59,7 @@ const ROOT = self ? self.src.replace(/assets\/palette\.js(\?.*)?$/, "") : "";
  * from matching across the end of the title and the start of an axis.
  *
  * Where a word lands is a signal, as it is on the landing. The id and the title
- * are what the paper *is*; its 연구 축 are what it is filed under; the
+ * are what the paper *is*; its 연구 분야 are what it is filed under; the
  * tagline is what it does, in the reader's own language — and in this corpus it
  * is the only Korean any of these fields carry, so it is the field a Korean
  * query lands in rather than a nicety.
@@ -166,7 +166,7 @@ root.innerHTML =
       '</svg>' +
       '<input class="cmdk-input" type="text" role="combobox" aria-expanded="true" ' +
         'aria-controls="cmdk-list" aria-autocomplete="list" autocomplete="off" ' +
-        'spellcheck="false" placeholder="제목 · 태그 · 연구 축 · arXiv id">' +
+        'spellcheck="false" placeholder="제목 · 태그 · 연구 분야 · arXiv id">' +
       '<button type="button" class="cmdk-esc" data-cmdk-dismiss aria-label="닫기">' +
         '<span class="k">esc</span><span class="x">' +
         '<svg class="ico ico-close" viewBox="0 0 16 16" width="13" height="13" ' +

@@ -46,7 +46,7 @@ def corpus_index(papers: list[Paper], comps: list | None = None) -> str:
     opening a built page directly has to keep working.
 
     Both surfaces that read it want the same fields. The palette searches the
-    id, the title and the 연구 축, and shows the tagline under each title —
+    id, the title and the 연구 분야, and shows the tagline under each title —
     which is also the only Korean any of those fields carry, since titles in
     this corpus are the paper's own English. 서재 turns a
     kept id back into a titled, taglined row with the same records.
@@ -242,7 +242,7 @@ def landing_page(papers: list[Paper], katex=None, search_api: str = "",
     #
     # The pair is printed twice, once for the rail and once for the filter bar,
     # because the rail leaves at 900px and these two would leave with it — and
-    # unlike the 연구 축 below them, nothing else on a phone can reach what
+    # unlike the 연구 분야 below them, nothing else on a phone can reach what
     # they select. Exactly one copy is ever on screen (`index.css`);
     # `filter.js` binds every copy it finds, so the pair never disagrees.
     rail_mine = _shelf_facets("rail-item mine")
@@ -290,7 +290,7 @@ def landing_page(papers: list[Paper], katex=None, search_api: str = "",
     <button type="button" class="barreset" data-reset="facet" hidden>필터 초기화</button>
     <span class="filter-spacer"></span>
     {_seg("정렬", "", '<button type="button" data-sort="recent" aria-pressed="true">최신순</button>'
-                      '<button type="button" data-sort="pillar" aria-pressed="false">연구 축별</button>'
+                      '<button type="button" data-sort="pillar" aria-pressed="false">연구 분야별</button>'
                       '<button type="button" data-sort="title" aria-pressed="false">제목순</button>')}
     {_seg("한 쪽에 몇 편", "psize", _page_sizes())}
   </div>
@@ -304,7 +304,7 @@ def landing_page(papers: list[Paper], katex=None, search_api: str = "",
       class="rail-reset" data-reset hidden>초기화</button></p>
     <p class="rail-h" data-mine-h>서재</p>
     {rail_mine}
-    <p class="rail-h">연구 축</p>
+    <p class="rail-h">연구 분야</p>
     {rail_pillars}
   </aside>
   <main class="corpus" data-corpus>
@@ -314,7 +314,7 @@ def landing_page(papers: list[Paper], katex=None, search_api: str = "",
     {_search_tabs(search_api)}
     <div class="sem" data-sem hidden></div>
     <div class="listhead" data-listhead{" hidden" if len(ordered) < 2 else ""}>
-      <span class="lh-star"></span><span>재작성</span><span>arXiv</span><span>논문 · 한 줄</span><span>연구 축</span><span>분량</span>
+      <span class="lh-star"></span><span>재작성</span><span>arXiv</span><span>논문 · 한 줄</span><span>연구 분야</span><span>분량</span>
     </div>
     <p class="corpus-partial" data-partial hidden>
       모든 단어를 포함하는 논문이 없어, <b>일부만 일치</b>하는 논문을 관련도순으로 보여줍니다.
@@ -1368,7 +1368,7 @@ def comparison_index_page(comps: list, papers_by_id: dict) -> str:
         )
         list_html = (
             '<div class="ix-head ix-cmp" aria-hidden="true"><span>작성</span>'
-            '<span>질문 · 공통 → 갈래</span><span>연구 축</span><span>논문</span></div>'
+            '<span>질문 · 공통 → 갈래</span><span>연구 분야</span><span>논문</span></div>'
             f'<div class="cmp-list">{rows}</div>'
             + _ix_foot(f"비교 {len(ordered)}건")
         )
@@ -1571,7 +1571,7 @@ def _scout_item(paper, decisions: dict, papers_by_id: dict, up: str) -> str:
     # already prints the first "what" line as its headline, so the open row
     # starts at the second. A paper no pillar wrote up has only its axis
     # rows, and one 📋 row has nothing to open.
-    why = f'<section class="sc-blk"><h3>연구 축별 시사점</h3><div class="sc-axes">{axes}</div></section>'
+    why = f'<section class="sc-blk"><h3>연구 분야별 시사점</h3><div class="sc-axes">{axes}</div></section>'
     if lead.full:
         contrib = _after_headline(lead.contrib)
         if lead.brief:
@@ -1608,9 +1608,9 @@ def _scout_status(run) -> str:
     shared = sum(1 for p in run.papers if p.group == "shared")
     asked = len(run.arrived) + len(run.missing)
     stats = (("게이트 통과", f"{len(run.papers)}", "편"),
-             ("여러 연구 축이 지목", f"{shared}", "편"),
+             ("여러 연구 분야가 지목", f"{shared}", "편"),
              ("근접 후보", f"{len(run.near)}", "편"),
-             ("연구 축", f"{len(run.arrived)}", f"/{asked}"))
+             ("연구 분야", f"{len(run.arrived)}", f"/{asked}"))
     tiles = "".join(f'<div><dt>{c.esc(k)}</dt><dd>{v}<small>{c.esc(u)}</small></dd></div>'
                     for k, v, u in stats)
     return (f'<div class="sc-status"><dl class="sc-stats">{tiles}</dl>'
@@ -1670,7 +1670,7 @@ def _scout_filter(run_pillars: list[str]) -> str:
         f'<button type="button" class="chip pillar" data-p="{p}" aria-pressed="false" '
         f'data-scout-p="{p}">{p} {c.esc(PILLAR_LABELS[p])}</button>'
         for p in run_pillars)
-    return (f'<div class="sc-filter" role="group" aria-label="연구 축으로 거르기">{pills}'
+    return (f'<div class="sc-filter" role="group" aria-label="연구 분야로 거르기">{pills}'
             '<span class="filter-spacer"></span>'
             '<button type="button" class="sc-open" data-scout-open aria-pressed="false">모두 펼치기</button>'
             '<span class="sc-shown" data-scout-shown aria-live="polite"></span></div>')
@@ -1729,7 +1729,7 @@ def scouting_run_page(run, runs: list, decisions: dict, papers_by_id: dict,
         near_html = (
             '<details class="sc-group sc-fold">'
             f'<summary class="sc-gh"><h2>근접 후보</h2><span class="sc-gn">{len(near)}편</span></summary>'
-            '<div class="sc-scroll"><table class="sc-table"><thead><tr><th>논문</th><th>연구 축</th>'
+            '<div class="sc-scroll"><table class="sc-table"><thead><tr><th>논문</th><th>연구 분야</th>'
             f'<th>재검토 조건</th></tr></thead><tbody>{rows}</tbody></table></div>'
             "</details>")
     # A pillar's own 🔄 compares it with its earlier reports — the routine's
@@ -1758,7 +1758,7 @@ def scouting_run_page(run, runs: list, decisions: dict, papers_by_id: dict,
     return c.page(
         title=f"{run.date} 탐색 · paper-radar",
         here="scout",
-        description=f"{run.date} 스카우팅 회차 — 연구 축마다 먼저 읽을 논문을 고른 목록",
+        description=f"{run.date} 스카우팅 회차 — 연구 분야마다 먼저 읽을 논문을 고른 목록",
         body=body,
         depth=depth,
         scripts=["scout.js"],

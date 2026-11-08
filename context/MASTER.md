@@ -20,7 +20,7 @@
 
 ## 1. Identity [STABLE] [AGENT-INPUT]
 
-> Research on **wearable robots and sensors** (P0) and on **tactile sensing and dexterous manipulation** (P1). Both are about the same thing from two sides: how a body or a hand senses contact and acts on it. A paper is relevant when it changes what a device senses through the body or through touch, or how that signal is turned into assistance or manipulation.
+> Research on **wearable robots, sensors and human biomechanics** (P0) and on **tactile sensing and dexterous manipulation** (P1). Both are about the same thing from two sides: how a body or a hand senses contact and acts on it. A paper is relevant when it changes what a device senses through the body or through touch, or how that signal is turned into assistance or manipulation.
 
 ---
 
@@ -44,7 +44,7 @@ Each pillar file owns its own scope, scouting lens, anti-topics, Decision Log an
 
 | Pillar | Owns | Decisions | File |
 |---|---|---|---|
-| P0 — Wearable Robots & Sensors | exoskeletons, wearable sensing, and intent/gait estimation from worn devices | 2 | `context/P0.md` |
+| P0 — Wearable Robots, Sensors & Biomechanics | exoskeletons, wearable sensing, intent/gait estimation from worn devices, and the biomechanics they assist | 2 | `context/P0.md` |
 | P1 — Tactile Sensing & Dexterous Manipulation | tactile sensors, VTLA policies, and dexterous and in-hand manipulation | 2 | `context/P1.md` |
 
 Retired: none.

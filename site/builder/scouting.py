@@ -36,8 +36,8 @@ ROW = "📋"
 # How a merged paper is grouped on its date's page, in page order: flagged by
 # more than one pillar, written up in full by one, or one 📋 row only.
 GROUPS = (
-    ("shared", "여러 연구 축이 함께 지목"),
-    ("top", "연구 축별 상위"),
+    ("shared", "여러 연구 분야가 함께 지목"),
+    ("top", "연구 분야별 상위"),
     ("rest", "그 밖에 게이트 통과"),
 )
 

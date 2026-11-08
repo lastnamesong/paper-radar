@@ -53,7 +53,7 @@ The allocation, which the lint reads back off these files:
 
 | Pillar | Decisions |
 |---|---|
-| P0. Wearable Robots & Sensors | D3WA, D6KM |
+| P0. Wearable Robots, Sensors & Biomechanics | D3WA, D6KM |
 | P1. Tactile Sensing & Dexterous Manipulation | D4TM, D7VT |
 
 ## When adding a new pillar (P5+)

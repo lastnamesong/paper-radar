@@ -25,7 +25,7 @@
   <rect class="matte" x="121" y="57" width="186" height="102" rx="4"/>
   <text class="p" x="136" y="96.0">context/</text>
   <text class="ps" x="136" y="118.0">MASTER.md</text>
-  <text class="ps" x="136" y="136.0">P#.md, one per pillar</text>
+  <text class="ps" x="136" y="136.0">P#.md, one per research area</text>
   <path class="wire" d="M332 108.0 H394"/><path class="head" d="M402 108.0 l-8 -4.5 v9 Z"/>
   <text class="note" x="367.0" y="98.0" text-anchor="middle">reads</text>
   <circle class="tx-rest" cx="425.0" cy="81.0" r="3.2"/><circle class="tx-halo" cx="443.0" cy="81.0" r="5.6"/><circle class="tx-halo" cx="461.0" cy="81.0" r="5.6"/><circle class="tx-rest" cx="479.0" cy="81.0" r="3.2"/><circle class="tx-halo" cx="425.0" cy="99.0" r="5.6"/><circle class="tx-core" cx="443.0" cy="99.0" r="7.7"/><circle class="tx-core" cx="461.0" cy="99.0" r="7.7"/><circle class="tx-halo" cx="479.0" cy="99.0" r="5.6"/><circle class="tx-halo" cx="425.0" cy="117.0" r="5.6"/><circle class="tx-core" cx="443.0" cy="117.0" r="7.7"/><circle class="tx-core" cx="461.0" cy="117.0" r="7.7"/><circle class="tx-halo" cx="479.0" cy="117.0" r="5.6"/><circle class="tx-rest" cx="425.0" cy="135.0" r="3.2"/><circle class="tx-halo" cx="443.0" cy="135.0" r="5.6"/><circle class="tx-halo" cx="461.0" cy="135.0" r="5.6"/><circle class="tx-rest" cx="479.0" cy="135.0" r="3.2"/>
