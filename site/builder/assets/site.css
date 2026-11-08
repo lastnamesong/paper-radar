@@ -1,4 +1,4 @@
-/* PROBE site — the design tokens.
+/* paper-radar site — the design tokens.
    Every value the rest of the sheet paints, sizes, rounds, times or stacks
    with is named here, and nothing outside this block invents one: a literal
    colour or a bare `z-index: 110` further down is a value with no name, which
@@ -12,12 +12,12 @@
    Contrast: every pair that carries text clears WCAG 4.5:1 against every
    ground it can land on, `--surface-3` — the hover ground — included, since
    that is the darkest of them and so sets the floor. The accent is two tokens
-   for this reason: `--orange` is the brand value, which fills, strokes and
-   marks — nothing is read off it but the wordmark, which is a landmark rather
-   than a line of text; `--orange-ink` is the accent wherever it does carry
-   something to read, deep enough to clear the floor. No neutral is pure
-   grey — a zero-chroma neutral reads flat next to warm paper — and no ground
-   is pure white.
+   for this reason: `--orange` is the signal, the amber of a pressed taxel,
+   which fills, strokes and marks — nothing is read off it; `--orange-ink` is
+   the accent wherever it does carry something to read, a navy-blue deep
+   enough to clear the floor. The names predate the palette and stay, since
+   every rule below reads them. No neutral is pure grey — the grounds lean
+   toward the navy ink — and no ground is pure white.
 
    Separation: the grounds are far enough apart that a card reads as a card on
    a desktop panel, not only on a bright phone screen. `--border` carries that
@@ -28,43 +28,36 @@
 
 :root {
   /* ── Ground and ink ─────────────────────────────────────────────────── */
-  --bg:          oklch(96.6% 0.005 57);
-  --surface:     oklch(99.4% 0.003 60);   /* card ground — warm, not #fff */
-  --surface-2:   oklch(93.6% 0.011 62);   /* tinted panel */
-  --surface-3:   oklch(90.5% 0.015 58);   /* hover / pressed ground */
-  --border:      oklch(86.0% 0.020 54);
-  --border-soft: oklch(90.8% 0.015 56);
-  --text:        oklch(21.0% 0.018 50);
-  --text-muted:  oklch(46.5% 0.025 54);
+  --bg:          oklch(97.2% 0.004 240);
+  --surface:     oklch(99.3% 0.002 240);   /* card ground — warm, not #fff */
+  --surface-2:   oklch(94.4% 0.008 242);   /* tinted panel */
+  --surface-3:   oklch(91.2% 0.011 242);   /* hover / pressed ground */
+  --border:      oklch(85.6% 0.016 244);
+  --border-soft: oklch(90.8% 0.011 242);
+  --text:        oklch(26.8% 0.046 252);
+  --text-muted:  oklch(47.0% 0.032 250);
 
   /* ── Accent ─────────────────────────────────────────────────────────── */
-  /* One accent, in two roles. `--orange` is the brand value: it draws the
-     rules and marks and fills the badges, numerals and primary buttons —
-     which carry `--accent-ink`, the dark ink, in both themes, because a
-     bright fill is a light surface either way. `--orange-ink` is the same
-     accent where it has to be *read* — every link, label and accented
-     numeral — because a fill only has to be seen and text has to clear 4.5:1
-     against paper. In dark the brand value already clears that floor, so the
-     ink is the accent and there is nothing to keep in step. The pressed step
-     of a filled button is mixed from the accent rather than named separately:
-     one accent means one value to move when it moves. */
-  --orange:      oklch(67.2% 0.131 39);
-  --orange-ink:  oklch(51.4% 0.155 41);
-  /* The wordmark's two stops. They are named rather than borrowed from the
-     pair above because the pair collapses in dark — there `--orange-ink` *is*
-     `--orange`, and a gradient between them is a flat fill. Both stops stay on
-     the accent's hue so the lockup reads as one colour deepening across five
-     letters rather than as two colours meeting. */
-  --wm-a:        oklch(49.0% 0.152 36);
-  --wm-b:        oklch(70.5% 0.128 44);
-  --accent-ink:  oklch(21.0% 0.018 50);
-  --orange-soft: oklch(95.8% 0.021 52);
-  --amber-soft:  oklch(77.3% 0.101 50);
+  /* Two roles, two hues. `--orange` is the signal amber: it draws the rules
+     and marks and fills the badges, numerals and primary buttons — which
+     carry `--accent-ink`, the dark ink, in both themes, because a bright fill
+     is a light surface either way. `--orange-ink` is the navy-blue the page
+     is read in wherever an accent carries text — every link, label and
+     accented numeral — because a fill only has to be seen and text has to
+     clear 4.5:1 against paper. The pressed step of a filled button is mixed
+     from the signal rather than named separately: one value to move when it
+     moves. */
+  --orange:      oklch(71.0% 0.140 72);
+  --orange-ink:  oklch(46.0% 0.120 256);
+  /* The wordmark's two stops: the navy ink lightening toward P0's teal, so
+     the name reads as the page's own ink rather than as the signal, which is
+     kept for what was pressed. */
+  --wm-a:        oklch(28.0% 0.050 252);
+  --wm-b:        oklch(50.0% 0.090 196);
+  --accent-ink:  oklch(22.0% 0.040 252);
+  --orange-soft: oklch(96.2% 0.026 80);
+  --amber-soft:  oklch(80.0% 0.090 76);
   --focus:       var(--orange-ink);
-  /* The mark's eye. Both sit on the accent hull, which is bright in either
-     theme, so they hold their one value across the pair. */
-  --mark-iris:   oklch(98.8% 0.007 53);
-  --mark-pupil:  oklch(23.6% 0.030 47);
 
   /* ── Semantic five ──────────────────────────────────────────────────── */
   /* Read as small bold text on their own wash — a callout label is the
@@ -107,25 +100,25 @@
   --syn-error:   var(--red);
 
   /* ── Grounds that are not the page ──────────────────────────────────── */
-  --code-bg:     oklch(94.6% 0.005 60);
-  --code-bar:    oklch(90.4% 0.005 60);
-  --code-rule:   oklch(86.4% 0.005 60);
-  --code-ink:    oklch(46.5% 0.025 54);   /* muted ink, measured on the bar */
-  --scrim:       oklch(21.0% 0.018 50 / .34);
+  --code-bg:     oklch(94.8% 0.006 242);
+  --code-bar:    oklch(90.6% 0.008 242);
+  --code-rule:   oklch(86.4% 0.010 242);
+  --code-ink:    oklch(47.0% 0.032 250);   /* muted ink, measured on the bar */
+  --scrim:       oklch(22.0% 0.040 252 / .34);
   /* arXiv figures are white PNGs, so the pad matches the file's own ground
      rather than the page's — the one place pure white is the correct value. */
   --fig-pad:     #ffffff;
 
   /* ── Pillar palette — scouting/AUTHORING.md §3-1 ────────────────────── */
-  --p0: oklch(90.0% 0.036 18);  --p1: oklch(93.8% 0.030 81);
+  --p0: oklch(92.4% 0.038 186);  --p1: oklch(92.6% 0.036 292);
   --p2: oklch(94.8% 0.047 133); --p3: oklch(90.1% 0.033 269);
   --p4: oklch(89.2% 0.045 301);
   /* Each pillar's ink: its tint's hue at text strength, for the chip's frame
      and label. */
-  --p0-ink: oklch(50% 0.13 18);  --p1-ink: oklch(52% 0.10 81);
+  --p0-ink: oklch(47.0% 0.085 186);  --p1-ink: oklch(48.0% 0.150 292);
   --p2-ink: oklch(50% 0.12 140); --p3-ink: oklch(50% 0.12 262);
   --p4-ink: oklch(50% 0.13 304);
-  --pna:  oklch(91.0% 0.009 56);
+  --pna:  oklch(91.0% 0.008 242);
   --dref: oklch(49.5% 0.131 58);   /* D# amber */
 
   /* ── Type ───────────────────────────────────────────────────────────── */
@@ -168,8 +161,8 @@
   --radius:      3px;
   --radius-pill: 2px;
   --shadow:      0 0 0 transparent;
-  --shadow-sm:   0 1px 0 oklch(21% 0.018 50 / .06);
-  --shadow-lg:   0 14px 40px oklch(21% 0.018 50 / .18), 0 0 0 1px oklch(21% 0.018 50 / .04);
+  --shadow-sm:   0 1px 0 oklch(22% 0.040 252 / .06);
+  --shadow-lg:   0 14px 40px oklch(22% 0.040 252 / .16), 0 0 0 1px oklch(22% 0.040 252 / .05);
 
   /* ── Motion ─────────────────────────────────────────────────────────── */
   /* One easing for entrances, one for state changes, and four durations.
@@ -217,21 +210,21 @@
 @supports (height: 100dvh) { :root { --vh-live: 100dvh; } }
 
 :root[data-theme="dark"] {
-  --bg:          oklch(18.1% 0.006 56);
-  --surface:     oklch(21.3% 0.009 59);
-  --surface-2:   oklch(23.7% 0.014 58);
-  --surface-3:   oklch(27.0% 0.015 58);
-  --border:      oklch(33.2% 0.017 59);
-  --border-soft: oklch(27.6% 0.014 62);
-  --text:        oklch(92.3% 0.012 60);
-  --text-muted:  oklch(67.4% 0.022 53);
+  --bg:          oklch(19.0% 0.014 250);
+  --surface:     oklch(22.2% 0.016 250);
+  --surface-2:   oklch(24.8% 0.018 250);
+  --surface-3:   oklch(28.2% 0.020 250);
+  --border:      oklch(34.4% 0.022 250);
+  --border-soft: oklch(28.8% 0.018 250);
+  --text:        oklch(93.4% 0.010 240);
+  --text-muted:  oklch(71.0% 0.022 245);
 
-  --orange:      oklch(73.9% 0.116 42);
-  --orange-ink:  var(--orange);
-  --wm-a:        oklch(60.5% 0.135 34);
-  --wm-b:        oklch(80.0% 0.104 50);
-  --accent-ink:  oklch(18.1% 0.006 56);
-  --orange-soft: oklch(25.0% 0.031 46);
+  --orange:      oklch(78.5% 0.135 76);
+  --orange-ink:  oklch(78.0% 0.090 255);
+  --wm-a:        oklch(84.0% 0.040 245);
+  --wm-b:        oklch(78.0% 0.100 190);
+  --accent-ink:  oklch(19.0% 0.014 250);
+  --orange-soft: oklch(27.0% 0.040 76);
 
   --blue:        oklch(75.0% 0.113 257);
   --green:       oklch(77.3% 0.126 162);
@@ -251,22 +244,22 @@
   --code-bg:     oklch(28.0% 0.020 264);
   --code-bar:    oklch(32.8% 0.017 262);
   --code-rule:   oklch(35.6% 0.017 267);
-  --code-ink:    oklch(72.0% 0.022 53);
-  --scrim:       oklch(10.0% 0.010 50 / .52);
-  --fig-pad:     oklch(94.9% 0.008 62);   /* pad the white PNG, don't invert it */
+  --code-ink:    oklch(72.0% 0.022 245);
+  --scrim:       oklch(8.0% 0.012 250 / .55);
+  --fig-pad:     oklch(94.9% 0.004 240);   /* pad the white PNG, don't invert it */
 
-  --p0: oklch(39.1% 0.047 19);  --p1: oklch(42.2% 0.042 72);
+  --p0: oklch(35.5% 0.050 186);  --p1: oklch(35.5% 0.070 292);
   --p2: oklch(42.2% 0.058 136); --p3: oklch(37.1% 0.056 268);
   --p4: oklch(36.9% 0.067 304);
-  --p0-ink: oklch(78% 0.10 18);  --p1-ink: oklch(82% 0.09 81);
+  --p0-ink: oklch(82.0% 0.090 186);  --p1-ink: oklch(82.0% 0.090 292);
   --p2-ink: oklch(80% 0.11 140); --p3-ink: oklch(78% 0.09 262);
   --p4-ink: oklch(78% 0.10 304);
-  --pna:  oklch(32.7% 0.013 58);
+  --pna:  oklch(33.0% 0.016 248);
   --dref: oklch(76.5% 0.139 73);
 
   --shadow:    0 0 0 transparent;
   --shadow-sm: 0 1px 0 oklch(0% 0 0 / .4);
-  --shadow-lg: 0 16px 44px oklch(0% 0 0 / .6), 0 0 0 1px oklch(30% 0.017 59 / .6);
+  --shadow-lg: 0 16px 44px oklch(0% 0 0 / .6), 0 0 0 1px oklch(34% 0.022 250 / .6);
 }
 
 html {
@@ -354,21 +347,15 @@ h1, h2, .paper-title, .lead-title, .row-title, .rel-title {
   max-width: 1240px; margin: 0 auto; padding: 0 1.25rem;
   width: 100%; display: flex; align-items: center; gap: 1rem;
 }
-/* The wordmark is the one accent text that keeps the brand value: it sits
-   against the mark's own hull, and the two read as one lockup rather than as
-   a drawing with a caption. It is a landmark, not something a reader has to
-   make out. Every other accent on the page carries a meaning — the axis a
-   paper sits under, the filter that is on — and takes `--orange-ink`; this
-   one is the brand itself, so it takes the brand value.
-   
-   It takes it as a gradient across the five letters, deep to bright, which is
-   the mark's own hull lit from one side. `color` is set first and the clip is
-   layered over it, so a browser that cannot paint text from a background —
-   or a reader in forced-colours, where the background is dropped — still gets
-   a solid accent rather than transparent letters. */
+/* The wordmark is set in the page's ink, deepening across the name, and sits
+   beside the taxel grid as one lockup. It is a landmark, not something a
+   reader has to make out. `color` is set first and the clip is layered over
+   it, so a browser that cannot paint text from a background — or a reader in
+   forced-colours, where the background is dropped — still gets solid ink
+   rather than transparent letters. */
 .nav-logo {
   font-weight: 800; font-size: var(--fs-md); letter-spacing: -.01em;
-  color: var(--orange); white-space: nowrap; text-decoration: none;
+  color: var(--text); white-space: nowrap; text-decoration: none;
   display: inline-flex; align-items: center; gap: .45rem;
 }
 @supports (background-clip: text) or (-webkit-background-clip: text) {
@@ -383,51 +370,23 @@ h1, h2, .paper-title, .lead-title, .row-title, .rel-title {
 }
 
 /* ── The mark ─────────────────────────────────────────────────────────── */
-/* A probe that looks back. It sits in the nav on every page, so it lives
-   here rather than in `index.css`. Geometry is in `components.mark()`;
-   `brand.js` steers the pupil after the pointer.
-   Every part paints from a token, so the mark follows the theme with the rest
-   of the page and the 16 px favicon stays a separate, static drawing. */
-.probe-mark { display: block; flex: none; overflow: visible; }
-.probe-mark .hull   { fill: var(--orange); }
-.probe-mark .iris   { fill: var(--mark-iris); }
-.probe-mark .pupil  { fill: var(--mark-pupil); transition: translate var(--dur-mid) var(--ease-track); }
-.probe-mark .joy    { fill: none; stroke: var(--mark-pupil); stroke-width: 3.4; stroke-linecap: round; }
-.probe-mark .stem   { fill: none; stroke: var(--orange); stroke-width: 3.6; stroke-linecap: round; }
-.probe-mark .leaf   { fill: var(--orange); }
-.probe-mark .shadow { fill: var(--orange); opacity: .55; }
-
-.probe-mark .rig    { animation: mark-bob 3.4s ease-in-out infinite; }
-/* The sprout sways about the point where its stem meets the hull, so the
-   leaves move and the root holds still: a stem that slides along the head
-   reads as a drawing error at logo size. Its cycle is not the bob's, so the
-   two never lock into one stiff motion. */
-.probe-mark .sprout { transform-box: view-box; transform-origin: 48px 27px;
-                      animation: mark-sway 3.2s ease-in-out infinite; }
-/* The lid wraps both halves of an eye, so it never lands on a pupil that is
-   still open. Every scale is about its own eye, not the viewBox centre. */
-.probe-mark .eye, .probe-mark .lid { transform-box: view-box; }
-.probe-mark .eL, .probe-mark .eL .lid { transform-origin: 36px 52px; }
-.probe-mark .eR, .probe-mark .eR .lid { transform-origin: 60px 52px; }
-.probe-mark .lid   { animation: mark-blink 5.4s ease-in-out infinite; }
-/* Two expressions and no more, since a third face on a 30 px logo reads as
-   fidgeting: the blink keeps the mark alive, and the two moods split the
-   cycle down the middle — a smile held for a beat and taken away reads as a
-   tic rather than as an expression. */
-.probe-mark .pupil { animation: mark-mood-open 14s ease-in-out infinite; }
-.probe-mark .joy   { animation: mark-mood-joy 14s ease-in-out infinite; }
-@keyframes mark-bob  { 0%, 100% { translate: 0 0; } 50% { translate: 0 -3px; } }
-@keyframes mark-sway { 0%, 100% { rotate: -5deg; } 50% { rotate: 5deg; } }
-@keyframes mark-blink  {
-  0%, 88%, 100% { transform: scaleY(1); }
-  92%           { transform: scaleY(.06); }
-  96%           { transform: scaleY(1); }
-}
-@keyframes mark-mood-open { 0%, 46%, 100% { opacity: 1; } 50%, 96% { opacity: 0; } }
-@keyframes mark-mood-joy  { 0%, 46%, 100% { opacity: 0; } 50%, 96% { opacity: 1; } }
+/* A 4×4 taxel grid read while something presses it: the centre four pressed,
+   their edge neighbours half pressed, the corners at rest. It sits in the nav
+   on every page, so it lives here rather than in `index.css`. Geometry is in
+   `components.mark()`; `brand.js` presses the edge taxel nearest the pointer,
+   the one motion the mark has. Every part paints from a token, so the mark
+   follows the theme and the favicon stays a separate, static drawing. */
+.taxel-mark { display: block; flex: none; overflow: visible; }
+.taxel-mark circle { transform-box: fill-box; transform-origin: center;
+                     transition: fill var(--dur-mid) var(--ease-out),
+                                 opacity var(--dur-mid) var(--ease-out),
+                                 scale var(--dur-mid) var(--ease-out); }
+.taxel-mark .rest { fill: var(--text); opacity: .3; }
+.taxel-mark .halo { fill: var(--orange); opacity: .45; }
+.taxel-mark .core { fill: var(--orange); }
+.taxel-mark .touch { fill: var(--orange); opacity: 1; scale: 1.25; }
 @media (prefers-reduced-motion: reduce) {
-  .probe-mark * { animation: none; transition: none; }
-  .probe-mark .joy { opacity: 0; }
+  .taxel-mark circle { transition: none; }
 }
 
 .nav-spacer { flex: 1; }

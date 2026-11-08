@@ -104,40 +104,31 @@ def icon(name: str, size: int = 16) -> str:
     )
 
 
-def mark(size: int) -> str:
-    """The animated PROBE mark — a probe that looks back at the reader.
+# The contact patch: the centre four pressed, their edge neighbours half
+# pressed, the corners at rest. `assets/build-art.py` draws the README's
+# images from the same patch.
+_CORE = {(1, 1), (1, 2), (2, 1), (2, 2)}
+_HALO = {(0, 1), (0, 2), (1, 0), (2, 0), (1, 3), (2, 3), (3, 1), (3, 2)}
 
-    One `viewBox` serves every size; the caller picks the pixel box. Geometry
-    only: the idle bob, the blink, the mood swap and the sprout's sway are
-    keyframes in `site.css`, and `brand.js` steers the pupils after the
-    pointer. Two eyes rather than one, because a single eye reads as
-    "something moved" while a pair reads as "it is looking at you" — which is
-    the whole point of putting a face on a scouting agent. Each eye ships both
-    of its faces at once — the round pupil and the `joy` arc it smiles with —
-    because a stroke cannot be tweened into a disc, so the mood keyframes
-    cross-fade between them and each face holds half the cycle. Decorative — the
-    logo names the site in text right next to it — so it stays out of the
-    accessibility tree.
+
+def mark(size: int) -> str:
+    """The paper-radar mark — a 4×4 taxel grid read while something presses it.
+
+    One `viewBox` serves every size; the caller picks the pixel box. A pressed
+    taxel grows as well as lights, so the patch reads without its colour.
+    `brand.js` presses the edge taxel nearest the pointer, and `data-rc` is
+    how it finds that taxel. Decorative — the wordmark names the site in text
+    right next to it — so it stays out of the accessibility tree.
     """
-    eyes = "".join(
-        f'<g class="eye {side}"><g class="lid">'
-        f'<circle class="iris" cx="{x}" cy="52" r="11"/>'
-        f'<circle class="pupil" cx="{x}" cy="52" r="5"/>'
-        f'<path class="joy" d="M{x - 6} 54 a6.5 6.5 0 0 1 12 0"/>'
-        "</g></g>"
-        for side, x in (("eL", 36), ("eR", 60))
-    )
+    r = {"core": 8.6, "halo": 6.2, "rest": 3.6}
+    dots = "".join(
+        f'<circle class="{lv}" data-rc="{row}{col}" cx="{12 + col * 24}" '
+        f'cy="{12 + row * 24}" r="{r[lv]}"/>'
+        for row in range(4) for col in range(4)
+        for lv in ["core" if (row, col) in _CORE else "halo" if (row, col) in _HALO else "rest"])
     return (
-        f'<svg class="probe-mark" width="{size}" height="{size}" '
-        'viewBox="0 0 96 96" aria-hidden="true" focusable="false">'
-        '<ellipse class="shadow" cx="48" cy="90" rx="20" ry="4"/>'
-        '<g class="rig">'
-        '<g class="sprout"><path class="stem" d="M48 26.5 V18.5"/>'
-        '<path class="leaf" d="M48 20.5 C43 20.6, 39.4 17.6, 38.5 13.5 C43.2 13, 47.2 15.6, 48 20.5 Z"/>'
-        '<path class="leaf" d="M48 18.2 C53.2 17.6, 57.6 14, 58.5 9.5 C53.2 9.5, 48.8 13, 48 18.2 Z"/></g>'
-        '<rect class="hull" x="17" y="27" width="62" height="54" rx="19"/>'
-        f"{eyes}"
-        "</g></svg>"
+        f'<svg class="taxel-mark" width="{size}" height="{size}" '
+        f'viewBox="0 0 96 96" aria-hidden="true" focusable="false">{dots}</svg>'
     )
 
 
@@ -338,7 +329,7 @@ def share_meta(title: str, description: str) -> str:
     description beside it say which page.
     """
     tags = [
-        '<meta property="og:site_name" content="PROBE">',
+        '<meta property="og:site_name" content="paper-radar">',
         '<meta property="og:type" content="website">',
         '<meta property="og:locale" content="ko_KR">',
         f'<meta property="og:title" content="{esc(title)}">',
@@ -573,7 +564,7 @@ def nav(up: str, here: str = "") -> str:
         for key, href, label in DESTINATIONS)
     return f"""<nav class="site-nav">
   <div class="nav-inner">
-    <a class="nav-logo" href="{up}index.html">{mark(19)}<span class="nav-word">PROBE</span></a>
+    <a class="nav-logo" href="{up}index.html">{mark(19)}<span class="nav-word">paper-radar</span></a>
     <span class="nav-spacer"></span>
     <ul class="nav-links">{links}</ul>
     <span class="nav-rule"></span>

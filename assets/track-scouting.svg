@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64" role="img" aria-label="scouting: a sweep across the grid">
+  <style>
+    .tx-rest  { fill: #13283F; opacity: .28; }
+    .tx-halo  { fill: #C27C0E; opacity: .42; }
+    .tx-core  { fill: #C27C0E; }
+    .lens     { fill: none; stroke: #13283F; stroke-width: 2.4; stroke-linecap: round; }
+    .person   { fill: #5B6B7C; }
+
+    .sweep { animation: sweep 3.2s ease-in-out infinite; }
+    @keyframes sweep { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(36px); } }
+    @media (prefers-reduced-motion: reduce) {
+      * { animation: none !important; }
+    }
+  </style>
+<rect class="tx-halo sweep" x="6" y="8" width="52" height="12" rx="6"/><circle class="tx-rest" cx="14.0" cy="14.0" r="2.2"/><circle class="tx-rest" cx="26.0" cy="14.0" r="2.2"/><circle class="tx-rest" cx="38.0" cy="14.0" r="2.2"/><circle class="tx-rest" cx="50.0" cy="14.0" r="2.2"/><circle class="tx-rest" cx="14.0" cy="26.0" r="2.2"/><circle class="tx-rest" cx="26.0" cy="26.0" r="2.2"/><circle class="tx-rest" cx="38.0" cy="26.0" r="2.2"/><circle class="tx-rest" cx="50.0" cy="26.0" r="2.2"/><circle class="tx-rest" cx="14.0" cy="38.0" r="2.2"/><circle class="tx-rest" cx="26.0" cy="38.0" r="2.2"/><circle class="tx-rest" cx="38.0" cy="38.0" r="2.2"/><circle class="tx-rest" cx="50.0" cy="38.0" r="2.2"/><circle class="tx-rest" cx="14.0" cy="50.0" r="2.2"/><circle class="tx-rest" cx="26.0" cy="50.0" r="2.2"/><circle class="tx-rest" cx="38.0" cy="50.0" r="2.2"/><circle class="tx-rest" cx="50.0" cy="50.0" r="2.2"/>
+</svg>

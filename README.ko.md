@@ -44,10 +44,10 @@ Scholar에서 최근 2주의 논문을 훑고, `context/`에 적힌 열린 결�
 </details>
 
 <details>
-<summary><b>왜 PROBE인가</b> — arXiv의 홍수에서 다음 아이디어까지</summary>
+<summary><b>왜 paper-radar인가</b> — arXiv의 홍수에서 다음 아이디어까지</summary>
 <br>
 
-| PROBE 없이 | PROBE와 함께 |
+| 없을 때 | paper-radar와 함께 |
 |---|---|
 | 제목 백 개를 훑고 하나도 기억 못 함 | **Scouting** — 내 열린 결정에 묶인, 점수 매긴 몇 편 |
 | "나중에 읽어야지" → 영영 안 읽음 | **Analysis** — 한 번에 끝까지 읽히는 한국어 페이지 |
@@ -64,17 +64,17 @@ Scholar에서 최근 2주의 논문을 훑고, `context/`에 적힌 열린 결�
 <summary><b>작동 방식</b> — 맥락은 내가 쓰고, 나머지는 에이전트가 씁니다</summary>
 <br>
 
-<picture><source media="(prefers-color-scheme: dark)" srcset="assets/own-dark.svg"><img src="assets/own.svg" width="880" alt="누가 무엇을 쓰는가: 나는 context/를 쓰고, PROBE는 그것을 읽어 scouting/, analysis/, comparison/을 쓴다. context/의 변경은 제안으로 나에게 온다."></picture>
+<picture><source media="(prefers-color-scheme: dark)" srcset="assets/own-dark.svg"><img src="assets/own.svg" width="880" alt="누가 무엇을 쓰는가: 나는 context/를 쓰고, paper-radar는 그것을 읽어 scouting/, analysis/, comparison/을 쓴다. context/의 변경은 제안으로 나에게 온다."></picture>
 
 `context/MASTER.md`는 연구 축을 가로지르는 내용을, 각 `context/P#.md`는 한
 연구 축의 Decision Log, 추적 문헌, 제외 주제(anti-topics)를 담습니다.
 
 | 트랙 | [Claude Code](https://claude.com/claude-code)에서 실행 | 결과물 |
 |:---:|---|---|
-| <picture><source media="(prefers-color-scheme: dark)" srcset="assets/probe-scouting-dark.svg"><img src="assets/probe-scouting.svg" height="64" alt="scouting"></picture><br><sub><b>Scouting</b></sub> | 예약 실행, 한 번에 모든 연구 축 — [설정](scouting/SETUP.md) · `/scout [pillars]` | `scouting/P#/<date>.md`와 `scouting/runs/<date>.md` — [형식](scouting/AUTHORING.md) |
-| <picture><source media="(prefers-color-scheme: dark)" srcset="assets/probe-analysis-dark.svg"><img src="assets/probe-analysis.svg" height="64" alt="analysis — 단서가 나올 때까지 읽는 탐정"></picture><br><sub><b>Analysis</b></sub> | `/analyze <arXiv id>`, 이어서 원문·코드와 대조하는 반복 검수 `/proofread <id>` | `analysis/<id>.md` — [형식](analysis/AUTHORING.md) |
-| <picture><source media="(prefers-color-scheme: dark)" srcset="assets/probe-comparison-dark.svg"><img src="assets/probe-comparison.svg" height="64" alt="comparison — 두 논문을 오가다 다른 곳에 빨간 원을 치는 눈"></picture><br><sub><b>Comparison</b></sub> | `/compare <id> <id> [<id>]` | `comparison/<slug>.md` — [형식](comparison/AUTHORING.md) |
-| <picture><source media="(prefers-color-scheme: dark)" srcset="assets/probe-ideation-dark.svg"><img src="assets/probe-ideation.svg" height="64" alt="ideation"></picture><br><sub><b>Ideation</b></sub> | `/ideate [<id \| alias \| topic>]` | 레포에는 아무것도 남지 않음 — 채팅 답변과, 답을 적는 비공개 페이지 |
+| <picture><source media="(prefers-color-scheme: dark)" srcset="assets/track-scouting-dark.svg"><img src="assets/track-scouting.svg" height="64" alt="scouting"></picture><br><sub><b>Scouting</b></sub> | 예약 실행, 한 번에 모든 연구 축 — [설정](scouting/SETUP.md) · `/scout [pillars]` | `scouting/P#/<date>.md`와 `scouting/runs/<date>.md` — [형식](scouting/AUTHORING.md) |
+| <picture><source media="(prefers-color-scheme: dark)" srcset="assets/track-analysis-dark.svg"><img src="assets/track-analysis.svg" height="64" alt="analysis — 렌즈 아래의 점 하나"></picture><br><sub><b>Analysis</b></sub> | `/analyze <arXiv id>`, 이어서 원문·코드와 대조하는 반복 검수 `/proofread <id>` | `analysis/<id>.md` — [형식](analysis/AUTHORING.md) |
+| <picture><source media="(prefers-color-scheme: dark)" srcset="assets/track-comparison-dark.svg"><img src="assets/track-comparison.svg" height="64" alt="comparison — 점 하나가 다른 두 판독"></picture><br><sub><b>Comparison</b></sub> | `/compare <id> <id> [<id>]` | `comparison/<slug>.md` — [형식](comparison/AUTHORING.md) |
+| <picture><source media="(prefers-color-scheme: dark)" srcset="assets/track-ideation-dark.svg"><img src="assets/track-ideation.svg" height="64" alt="ideation"></picture><br><sub><b>Ideation</b></sub> | `/ideate [<id \| alias \| topic>]` | 레포에는 아무것도 남지 않음 — 채팅 답변과, 답을 적는 비공개 페이지 |
 
 </details>
 

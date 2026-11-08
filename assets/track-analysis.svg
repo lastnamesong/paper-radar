@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64" role="img" aria-label="analysis: one taxel under a lens">
+  <style>
+    .tx-rest  { fill: #13283F; opacity: .28; }
+    .tx-halo  { fill: #C27C0E; opacity: .42; }
+    .tx-core  { fill: #C27C0E; }
+    .lens     { fill: none; stroke: #13283F; stroke-width: 2.4; stroke-linecap: round; }
+    .person   { fill: #5B6B7C; }
+
+    @media (prefers-reduced-motion: reduce) {
+      * { animation: none !important; }
+    }
+  </style>
+<circle class="tx-rest" cx="14.0" cy="14.0" r="2.2"/><circle class="tx-rest" cx="26.0" cy="14.0" r="2.2"/><circle class="tx-rest" cx="38.0" cy="14.0" r="2.2"/><circle class="tx-rest" cx="50.0" cy="14.0" r="2.2"/><circle class="tx-rest" cx="14.0" cy="26.0" r="2.2"/><circle class="tx-core" cx="26.0" cy="26.0" r="5.2"/><circle class="tx-rest" cx="38.0" cy="26.0" r="2.2"/><circle class="tx-rest" cx="50.0" cy="26.0" r="2.2"/><circle class="tx-rest" cx="14.0" cy="38.0" r="2.2"/><circle class="tx-rest" cx="26.0" cy="38.0" r="2.2"/><circle class="tx-rest" cx="38.0" cy="38.0" r="2.2"/><circle class="tx-rest" cx="50.0" cy="38.0" r="2.2"/><circle class="tx-rest" cx="14.0" cy="50.0" r="2.2"/><circle class="tx-rest" cx="26.0" cy="50.0" r="2.2"/><circle class="tx-rest" cx="38.0" cy="50.0" r="2.2"/><circle class="tx-rest" cx="50.0" cy="50.0" r="2.2"/><circle class="lens" cx="26" cy="26" r="9"/><path class="lens" d="M32.5 32.5 41 41"/>
+</svg>

@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64" role="img" aria-label="ideation: one taxel lights up">
+  <style>
+    .tx-rest  { fill: #E6ECF2; opacity: .28; }
+    .tx-halo  { fill: #E3A23B; opacity: .42; }
+    .tx-core  { fill: #E3A23B; }
+    .lens     { fill: none; stroke: #E6ECF2; stroke-width: 2.4; stroke-linecap: round; }
+    .person   { fill: #93A3B4; }
+
+    @media (prefers-reduced-motion: reduce) {
+      * { animation: none !important; }
+    }
+  </style>
+<circle class="tx-core" cx="32" cy="32" r="7"/><path class="lens" d="M32 21 L32 17"/><path class="lens" d="M32 43 L32 47"/><path class="lens" d="M21 32 L17 32"/><path class="lens" d="M43 32 L47 32"/><circle class="tx-rest" cx="10" cy="10" r="2.2"/><circle class="tx-rest" cx="10" cy="54" r="2.2"/><circle class="tx-rest" cx="54" cy="10" r="2.2"/><circle class="tx-rest" cx="54" cy="54" r="2.2"/>
+</svg>

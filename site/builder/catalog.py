@@ -297,9 +297,9 @@ def llms_txt(cat: dict, search_api: str = "") -> str:
     """
     site, src = cat["site"], cat["source"]
     lines = [
-        "# PROBE",
+        "# paper-radar",
         "",
-        "> Korean re-tellings of dexterous-manipulation papers, each written from "
+        "> Korean re-tellings of wearable-robotics and tactile dexterous-manipulation papers, each written from "
         "the paper's arXiv HTML original, plus comparisons that set two or three "
         "of them against one question. Titles and section glosses are "
         "English; taglines, summaries and bodies are Korean.",

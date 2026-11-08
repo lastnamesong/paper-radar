@@ -1,38 +1,41 @@
-/* The mark's pupils follow the pointer. Loaded on every page, since the nav
-   carries the mark everywhere; the idle bob, the blink, the mood swap and the
-   sprout's sway are pure CSS and run without this file. */
+/* The mark answers the pointer: the edge taxel on the pointer's side of the
+   grid is pressed, as a tactile sensor reads a touch from that side. Loaded on
+   every page, since the nav carries the mark everywhere; the mark is a static
+   drawing without this file. */
 
 (function () {
   "use strict";
-  var pupils = [].slice.call(document.querySelectorAll(".probe-mark .pupil"));
-  if (!pupils.length) return;
+  var marks = [].slice.call(document.querySelectorAll(".taxel-mark"));
+  if (!marks.length) return;
   // A touch device has no pointer to follow, and a reader who asked for less
   // motion asked for this too.
   if (!matchMedia("(pointer: fine)").matches) return;
   if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
 
+  // The twelve edge taxels, clockwise from the top-left corner, as `data-rc`.
+  var ring = ["00", "01", "02", "03", "13", "23", "33", "32", "31", "30", "20", "10"];
   var frame = null;
 
-  function look(e) {
+  function press(e) {
     if (frame) return;
     frame = requestAnimationFrame(function () {
       frame = null;
-      pupils.forEach(function (pupil) {
-        var box = pupil.ownerSVGElement.getBoundingClientRect();
+      marks.forEach(function (svg) {
+        var box = svg.getBoundingClientRect();
         if (!box.width) return;
         var dx = e.clientX - (box.left + box.width / 2);
         var dy = e.clientY - (box.top + box.height / 2);
-        var d = Math.sqrt(dx * dx + dy * dy) || 1;
-        // viewBox units, and capped: each eye is r 11 around a pupil of r 5, so
-        // 4.5 across and 3.5 down keeps the pupil inside its own eye even on
-        // the diagonal. `k` keeps a pointer resting near the mark from pinning
-        // the eyes wide.
-        var k = Math.min(d / 220, 1);
-        pupil.style.translate =
-          (dx / d * 4.5 * k).toFixed(2) + "px " + (dy / d * 3.5 * k).toFixed(2) + "px";
+        // Clockwise from the top-left corner, matching `ring`.
+        var turn = (Math.atan2(dy, dx) / (2 * Math.PI) + 0.375 + 1) % 1;
+        var rc = ring[Math.round(turn * ring.length) % ring.length];
+        var on = svg.querySelector(".touch");
+        if (on && on.getAttribute("data-rc") === rc) return;
+        if (on) on.classList.remove("touch");
+        var t = svg.querySelector('[data-rc="' + rc + '"]');
+        if (t) t.classList.add("touch");
       });
     });
   }
 
-  window.addEventListener("pointermove", look, { passive: true });
+  window.addEventListener("pointermove", press, { passive: true });
 })();

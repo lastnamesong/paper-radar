@@ -44,10 +44,10 @@ read become rewrites in `analysis/`.
 </details>
 
 <details>
-<summary><b>Why PROBE</b> — from the arXiv flood to your next idea</summary>
+<summary><b>Why paper-radar</b> — from the arXiv flood to your next idea</summary>
 <br>
 
-| Without PROBE | With PROBE |
+| Without it | With paper-radar |
 |---|---|
 | Skim a hundred titles, remember none | **Scouting** — a few scored papers, tied to your open decisions |
 | "I'll read it later" → never | **Analysis** — a Korean page you finish in a sitting |
@@ -64,17 +64,17 @@ together, in Korean, on the reading site.
 <summary><b>How it works</b> — you own the context, the agent writes the rest</summary>
 <br>
 
-<picture><source media="(prefers-color-scheme: dark)" srcset="assets/own-dark.svg"><img src="assets/own.svg" width="880" alt="Who writes what: you write context/, and PROBE reads it and writes scouting/, analysis/ and comparison/. Changes to context/ come to you as proposals."></picture>
+<picture><source media="(prefers-color-scheme: dark)" srcset="assets/own-dark.svg"><img src="assets/own.svg" width="880" alt="Who writes what: you write context/, and paper-radar reads it and writes scouting/, analysis/ and comparison/. Changes to context/ come to you as proposals."></picture>
 
 `context/MASTER.md` holds what cuts across pillars, and each `context/P#.md`
 holds one pillar's decision log, tracked literature and anti-topics.
 
 | Track | You run in [Claude Code](https://claude.com/claude-code) | It writes |
 |:---:|---|---|
-| <picture><source media="(prefers-color-scheme: dark)" srcset="assets/probe-scouting-dark.svg"><img src="assets/probe-scouting.svg" height="64" alt="scouting"></picture><br><sub><b>Scouting</b></sub> | scheduled, every pillar in one run — [setup](scouting/SETUP.md) · `/scout [pillars]` | `scouting/P#/<date>.md` and `scouting/runs/<date>.md` — [format](scouting/AUTHORING.md) |
-| <picture><source media="(prefers-color-scheme: dark)" srcset="assets/probe-analysis-dark.svg"><img src="assets/probe-analysis.svg" height="64" alt="analysis — a detective reads until a clue turns up: !"></picture><br><sub><b>Analysis</b></sub> | `/analyze <arXiv id>`, then `/proofread <id>` for looped passes against the original and its code | `analysis/<id>.md` — [format](analysis/AUTHORING.md) |
-| <picture><source media="(prefers-color-scheme: dark)" srcset="assets/probe-comparison-dark.svg"><img src="assets/probe-comparison.svg" height="64" alt="comparison — eyes dart between two papers until a red ring circles where they differ"></picture><br><sub><b>Comparison</b></sub> | `/compare <id> <id> [<id>]` | `comparison/<slug>.md` — [format](comparison/AUTHORING.md) |
-| <picture><source media="(prefers-color-scheme: dark)" srcset="assets/probe-ideation-dark.svg"><img src="assets/probe-ideation.svg" height="64" alt="ideation"></picture><br><sub><b>Ideation</b></sub> | `/ideate [<id \| alias \| topic>]` | nothing in the repo — a chat answer, and a private page you answer on |
+| <picture><source media="(prefers-color-scheme: dark)" srcset="assets/track-scouting-dark.svg"><img src="assets/track-scouting.svg" height="64" alt="scouting"></picture><br><sub><b>Scouting</b></sub> | scheduled, every pillar in one run — [setup](scouting/SETUP.md) · `/scout [pillars]` | `scouting/P#/<date>.md` and `scouting/runs/<date>.md` — [format](scouting/AUTHORING.md) |
+| <picture><source media="(prefers-color-scheme: dark)" srcset="assets/track-analysis-dark.svg"><img src="assets/track-analysis.svg" height="64" alt="analysis — one taxel under a lens"></picture><br><sub><b>Analysis</b></sub> | `/analyze <arXiv id>`, then `/proofread <id>` for looped passes against the original and its code | `analysis/<id>.md` — [format](analysis/AUTHORING.md) |
+| <picture><source media="(prefers-color-scheme: dark)" srcset="assets/track-comparison-dark.svg"><img src="assets/track-comparison.svg" height="64" alt="comparison — two readings, one taxel apart"></picture><br><sub><b>Comparison</b></sub> | `/compare <id> <id> [<id>]` | `comparison/<slug>.md` — [format](comparison/AUTHORING.md) |
+| <picture><source media="(prefers-color-scheme: dark)" srcset="assets/track-ideation-dark.svg"><img src="assets/track-ideation.svg" height="64" alt="ideation"></picture><br><sub><b>Ideation</b></sub> | `/ideate [<id \| alias \| topic>]` | nothing in the repo — a chat answer, and a private page you answer on |
 
 </details>
 

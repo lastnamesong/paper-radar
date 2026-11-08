@@ -271,7 +271,7 @@ def landing_page(papers: list[Paper], katex=None, search_api: str = "",
     )
 
     head = c.mast(
-        eyebrow="Dexterous manipulation",
+        eyebrow="Wearable robotics & tactile manipulation",
         title="분석, 원문을 읽기 좋게 풀어 둡니다",
         count=f"{len(ordered)}편" + (f" · 최근 {ordered[0].date}" if ordered else ""),
     )
@@ -332,9 +332,9 @@ def landing_page(papers: list[Paper], katex=None, search_api: str = "",
 </div>
 """
     return c.page(
-        title="PROBE",
+        title="paper-radar",
         here="papers",
-        description=f"Dexterous manipulation 논문 {len(ordered)}편을 원문에서 다시 쓴 한글 판",
+        description=f"웨어러블 로보틱스와 촉각 정밀 조작 논문 {len(ordered)}편을 원문에서 다시 쓴 한글 판",
         body=body,
         depth=0,
         # `semantic.js` ships only when the build is handed an endpoint, so a
@@ -653,7 +653,7 @@ def shelf_page(papers: list[Paper]) -> str:
 </main>
 """
     return c.page(
-        title="서재 · PROBE",
+        title="서재 · paper-radar",
         here="shelf",
         description="즐겨찾기 · 책갈피 · 메모 — 이 브라우저에 담아 둔 논문과 읽던 자리",
         body=body,
@@ -685,7 +685,7 @@ def not_found_page(papers: list[Paper]) -> str:
 </main>
 """
     return c.page(
-        title="404 · PROBE",
+        title="404 · paper-radar",
         body=body,
         depth=0,
         base=SITE_BASE,
@@ -769,7 +769,7 @@ def paper_page(paper: Paper, katex, decisions: dict,
 {c.memo_panel(paper.stem, paper.title, f"{BLOB}/analysis/{paper.stem}.md", DISCUSSIONS_NEW)}
 """
     return c.page(
-        title=f"{paper.title} · PROBE",
+        title=f"{paper.title} · paper-radar",
         here="papers",
         description=paper.preview,
         body=body,
@@ -1139,7 +1139,7 @@ def comparison_page(comp, papers_by_id: dict, katex, decisions: dict,
 </div>
 """
     return c.page(
-        title=f"{comp.title} · PROBE",
+        title=f"{comp.title} · paper-radar",
         here="compare",
         description=comp.preview,
         body=body,
@@ -1387,7 +1387,7 @@ def comparison_index_page(comps: list, papers_by_id: dict) -> str:
 </main>
 """
     return c.page(
-        title="비교 · PROBE",
+        title="비교 · paper-radar",
         here="compare",
         description="재작성본이 있는 논문 두세 편을 한 질문 아래 놓고, 갈리는 자리만 원문에서 확인한 비교",
         body=body,
@@ -1756,7 +1756,7 @@ def scouting_run_page(run, runs: list, decisions: dict, papers_by_id: dict,
 </main>
 """
     return c.page(
-        title=f"{run.date} 탐색 · PROBE",
+        title=f"{run.date} 탐색 · paper-radar",
         here="scout",
         description=f"{run.date} 스카우팅 회차 — 연구 축마다 먼저 읽을 논문을 고른 목록",
         body=body,
@@ -1777,7 +1777,7 @@ def scouting_empty_page() -> str:
 </main>
 """
     return c.page(
-        title="탐색 · PROBE",
+        title="탐색 · paper-radar",
         here="scout",
         body=body,
         depth=1,

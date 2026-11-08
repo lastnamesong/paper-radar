@@ -1,40 +1,22 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
-  <!-- The PROBE mark as a tab icon: the same character the nav and the
-       masthead carry, at 1/2.365 of `components.mark()`'s own geometry, so a
-       reader who looks from the tab to the header sees one probe rather than
-       two drawings. Every coordinate here is that scale applied to the
-       corresponding number in `mark()` — moving one of them there moves this.
+  <!-- The paper-radar mark as a tab icon: `components.mark()`'s taxel grid at
+       a third of its geometry, with the rest taxels dropped — at 16 px only
+       the pressed patch survives, and a grid of specks reads as noise.
 
-       No tile behind it. A tile forces a ground colour to be chosen for a
-       strip whose colour the page does not know, and the orange hull already
-       carries the brand on light and dark alike; the silhouette — a rounded
-       hull under one sprout — is what a 16 px tab is scanned for, and a tile
-       squares it away. The sway, the shadow and the smile are dropped: a
-       tab holds still, and at 16 px the pair of eyes is the whole face.
-
-       The colours are the orange, iris and pupil tokens of `site.css`
-       resolved to sRGB, orange in both of its themes. A favicon is fetched
-       outside the page, so it cannot read a custom property and carries its
-       own `prefers-color-scheme` rule instead.
-
-       Two hyphens in a row close an XML comment, so the token names are
-       spelled out in prose here rather than written as CSS properties. -->
+       The colours are the signal and ink tokens of `site.css` resolved to
+       sRGB. A favicon is fetched outside the page, so it cannot read a custom
+       property and carries its own `prefers-color-scheme` rule instead. -->
   <style>
-    .hull, .leaf { fill: #d97756; }
-    .stem  { fill: none; stroke: #d97756; stroke-width: 1.52; stroke-linecap: round; }
-    .iris  { fill: #fffaf7; }
-    .pupil { fill: #2a1a12; }
+    .core { fill: #d79127; }
+    .halo { fill: #d79127; opacity: .5; }
     @media (prefers-color-scheme: dark) {
-      .hull, .leaf { fill: #e8916f; }
-      .stem  { stroke: #e8916f; }
+      .core, .halo { fill: #eaac48; }
     }
   </style>
-  <path class="stem" d="M16 7.74 V4.36"/>
-  <path class="leaf" d="M16 5.21 C13.89 5.25 12.36 3.98 11.98 2.25 C13.97 2.04 15.66 3.14 16 5.21 Z"/>
-  <path class="leaf" d="M16 4.24 C18.2 3.98 20.06 2.46 20.44 0.56 C18.2 0.56 16.34 2.04 16 4.24 Z"/>
-  <rect class="hull" x="2.89" y="7.97" width="26.22" height="22.84" rx="8.03"/>
-  <circle class="iris" cx="10.93" cy="18.54" r="4.65"/>
-  <circle class="iris" cx="21.07" cy="18.54" r="4.65"/>
-  <circle class="pupil" cx="10.93" cy="18.54" r="2.11"/>
-  <circle class="pupil" cx="21.07" cy="18.54" r="2.11"/>
+  <circle class="halo" cx="12" cy="4" r="2.4"/><circle class="halo" cx="20" cy="4" r="2.4"/>
+  <circle class="halo" cx="4" cy="12" r="2.4"/><circle class="core" cx="12" cy="12" r="3.4"/>
+  <circle class="core" cx="20" cy="12" r="3.4"/><circle class="halo" cx="28" cy="12" r="2.4"/>
+  <circle class="halo" cx="4" cy="20" r="2.4"/><circle class="core" cx="12" cy="20" r="3.4"/>
+  <circle class="core" cx="20" cy="20" r="3.4"/><circle class="halo" cx="28" cy="20" r="2.4"/>
+  <circle class="halo" cx="12" cy="28" r="2.4"/><circle class="halo" cx="20" cy="28" r="2.4"/>
 </svg>
