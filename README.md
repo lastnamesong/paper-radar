@@ -1,6 +1,6 @@
 <div align="center">
 
-<a href="https://lastnamesong.github.io/paper-radar/"><picture><source media="(prefers-color-scheme: dark)" srcset="assets/hero-dark.svg"><img src="assets/hero.svg" width="880" alt="paper-radar — a literature radar for research, scouted every morning and read in Korean."></picture></a>
+<a href="https://lastnamesong.github.io/paper-radar/"><picture><source media="(prefers-color-scheme: dark)" srcset="assets/hero-dark.svg"><img src="assets/hero.svg" width="880" alt="paper-radar — a literature radar for research, scouted twice a week and read in Korean."></picture></a>
 
 **English** · [한국어](README.ko.md)
 
@@ -12,7 +12,7 @@
 
 ![P0](https://img.shields.io/badge/P0-wearables_%26_biomechanics-2E8B7A?style=flat-square)
 ![P1](https://img.shields.io/badge/P1-tactile_%26_dexterous_manipulation-7A5CC2?style=flat-square)
-![Scouting](https://img.shields.io/badge/scouting-daily_07%3A00_KST-555?style=flat-square)
+![Scouting](https://img.shields.io/badge/scouting-Wed_%26_Sat_07%3A00_KST-555?style=flat-square)
 ![Language](https://img.shields.io/badge/reports-한국어-555?style=flat-square)
 
 </div>
@@ -22,7 +22,7 @@
 <br>
 
 **paper-radar** is the literature radar for one research program: how a body
-or a hand senses contact and acts on it. Every morning a scheduled
+or a hand senses contact and acts on it. Every Wednesday and Saturday morning a scheduled
 [Claude Code](https://claude.com/claude-code) routine sweeps arXiv and
 Semantic Scholar for the last two weeks of papers, scores them against the
 open decisions in `context/`, and commits one Korean report per research area. The

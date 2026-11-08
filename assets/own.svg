@@ -33,7 +33,7 @@
   <rect class="mine" x="524" y="52" width="262" height="112" rx="6"/>
   <rect class="row" x="533" y="72.5" width="244" height="21" rx="3"/>
   <text class="p" x="544" y="87.5">scouting/</text>
-  <text class="ps" x="766" y="87.5" text-anchor="end">every morning</text>
+  <text class="ps" x="766" y="87.5" text-anchor="end">Wed and Sat</text>
   <rect class="row" x="533" y="97.5" width="244" height="21" rx="3"/>
   <text class="p" x="544" y="112.5">analysis/</text>
   <text class="ps" x="766" y="112.5" text-anchor="end">on request</text>

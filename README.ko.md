@@ -1,6 +1,6 @@
 <div align="center">
 
-<a href="https://lastnamesong.github.io/paper-radar/"><picture><source media="(prefers-color-scheme: dark)" srcset="assets/hero-ko-dark.svg"><img src="assets/hero-ko.svg" width="880" alt="paper-radar — 연구를 위한 논문 레이더. 매일 아침 스카우팅하고, 한국어로 읽습니다."></picture></a>
+<a href="https://lastnamesong.github.io/paper-radar/"><picture><source media="(prefers-color-scheme: dark)" srcset="assets/hero-ko-dark.svg"><img src="assets/hero-ko.svg" width="880" alt="paper-radar — 연구를 위한 논문 레이더. 주 2회 스카우팅하고, 한국어로 읽습니다."></picture></a>
 
 [English](README.md) · **한국어**
 
@@ -12,7 +12,7 @@
 
 ![P0](https://img.shields.io/badge/P0-wearables_%26_biomechanics-2E8B7A?style=flat-square)
 ![P1](https://img.shields.io/badge/P1-tactile_%26_dexterous_manipulation-7A5CC2?style=flat-square)
-![Scouting](https://img.shields.io/badge/scouting-daily_07%3A00_KST-555?style=flat-square)
+![Scouting](https://img.shields.io/badge/scouting-Wed_%26_Sat_07%3A00_KST-555?style=flat-square)
 ![Language](https://img.shields.io/badge/reports-한국어-555?style=flat-square)
 
 </div>
@@ -22,7 +22,7 @@
 <br>
 
 **paper-radar**는 하나의 연구 주제, 즉 몸과 손이 접촉을 어떻게 감지하고 그에
-따라 움직이는가를 위한 논문 레이더입니다. 매일 아침 예약된
+따라 움직이는가를 위한 논문 레이더입니다. 매주 수요일과 토요일 아침에 예약된
 [Claude Code](https://claude.com/claude-code) 루틴이 arXiv와 Semantic
 Scholar에서 최근 2주의 논문을 훑고, `context/`에 적힌 열린 결정들을 기준으로
 점수를 매긴 뒤, 연구 분야마다 한국어 리포트를 하나씩 커밋합니다.

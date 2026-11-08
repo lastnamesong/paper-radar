@@ -144,16 +144,16 @@ def hero(name_line: str, sub: str, count: str, label: str, button: str, bw: int)
 
 
 def hero_en() -> str:
-    return hero("A literature radar for research.", "Scouted every morning, read in Korean.",
+    return hero("A literature radar for research.", "Scouted twice a week, read in Korean.",
                 "Dozens of new papers a day; a few pressed for you.",
-                "paper-radar — a literature radar for research, scouted every morning and read in Korean. "
+                "paper-radar — a literature radar for research, scouted twice a week and read in Korean. "
                 "Open the reading site.", "Open the reading site", 196)
 
 
 def hero_ko() -> str:
-    return hero("연구를 위한 논문 레이더.", "매일 아침 스카우팅하고, 한국어로 읽습니다.",
+    return hero("연구를 위한 논문 레이더.", "주 2회 스카우팅하고, 한국어로 읽습니다.",
                 "하루 수십 편 가운데, 몇 편만 눌러 둡니다.",
-                "paper-radar — 연구를 위한 논문 레이더. 매일 아침 스카우팅하고, 한국어로 읽습니다. "
+                "paper-radar — 연구를 위한 논문 레이더. 주 2회 스카우팅하고, 한국어로 읽습니다. "
                 "읽기 사이트 열기.", "읽기 사이트 열기", 156)
 
 
@@ -173,7 +173,7 @@ OWN_CSS = f"""
     .wire  {{ fill: none; stroke: ${{FRAME}}; stroke-width: 1.4; stroke-dasharray: 4 5; }}
     .head  {{ fill: ${{FRAME}}; }}"""
 
-FOLDERS = [("scouting/", "every morning"), ("analysis/", "on request"),
+FOLDERS = [("scouting/", "Wed and Sat"), ("analysis/", "on request"),
            ("comparison/", "on request")]
 
 
