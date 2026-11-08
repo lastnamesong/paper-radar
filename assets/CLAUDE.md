@@ -12,10 +12,9 @@ their colours.
 
 | File | Role |
 |---|---|
-| `hero.svg` (880×330) | The front door, and the link to the reading site. The headline, the claim and the button on the left; on the right, one 25 s cycle in two scenes — the flood, then the reader |
 | `own.svg` (880×204) | The picture under How it works — who writes what: you and `context/`, the probe that reads it, and the three folders it writes |
 | `probe-scouting.svg`, `probe-analysis.svg`, `probe-comparison.svg`, `probe-ideation.svg` | The four track icons, each above its track's name in the How-it-works table |
-| `build-art.py` | Generates `hero` and `own`. The four track icons are hand-authored |
+| `build-art.py` | Generates `own`. The four track icons are hand-authored |
 
 ## Drawing rules
 
@@ -25,12 +24,10 @@ room to spare, so a wider substituted face grows into space rather than into
 its neighbour. An image that carries text repeats it in `aria-label` and in the
 `alt` the README embeds it with.
 
-**Rectangles are files.** A card in the feed is a paper, a row in `own.svg` is a
-folder, a frame holds files. The one rounded shape that is not a file is the
-hero's button, and it is a pill so it cannot be read as one.
+**Rectangles are files.** A row in `own.svg` is a folder, a frame holds files.
 
 **The accent draws the edge a reader meets first.** A frame standing on the
-README's own page — the hero's card, the two frames in `own.svg` — takes the
+README's own page — the two frames in `own.svg` — takes the
 accent (`#D97757`, `#E8916F`) over the shared card ground (`#FFFCFA`,
 `#211C19`). A shape inside a frame keeps the neutral border (`#E8CDBD`,
 `#3D3129`). `context/`'s frame also carries a hairline just inside its edge:
@@ -40,11 +37,9 @@ the one set of files the agent may not write, held in a matte.
 the probe alone, and so does the sprout on its head — a stem and two leaves
 that sway about the stem's root on a 3.2 s cycle, off the bob's beat. The
 person in `own.svg` is the probe's clay and shadow with no face and no sprout,
-and breathes on its own 4.6 s cycle rather than the probe's bob. The out-of-it
-probe is the same character dimmed, its sprout wilted and its eyes crossed; the
-only thing its eyes do is pulse, the two a half beat apart. A prop is placed or
-worn, never gripped: a handless probe holds nothing, so the page rides under
-its eyes, the mug stands on the ground beside it, the scouter hangs from the
+and breathes on its own 4.6 s cycle rather than the probe's bob. A prop is placed
+or worn, never gripped: a handless probe holds nothing, so the page rides
+under its eyes, the scouter hangs from the
 hull's edge, the deerstalker sits on its head with the reading stone lying on
 the page, and the bulb hangs over it where a thought would.
 
@@ -88,25 +83,6 @@ carries no external stylesheet, so every motion lives in the file's own
 `site/builder/components.py`'s `mark()` redrawn: change `mark()` and these
 change with it.
 
-## The hero
-
-The right half runs one 25 s cycle in two scenes, so the contrast the Why
-table draws is on the first screen.
-
-- **The flood, 0–34 %.** The out-of-it probe, while loose papers fall where
-  the feed will stand — never on the probe — under the label
-  `arXiv · 50–100 A DAY`.
-- **The reader, 40–96 %.** The probe reading with its coffee, and the feed,
-  under `PROBE · 3–5 A WEEK`. The feed fades in with the reader, so nothing
-  is picked while the probe is out of it.
-
-A card is marked where it crosses a reading line, with nothing drawn at the
-line itself. Which rows are marked follows from the geometry, so moving the
-line, the rows or the speed moves the keyframes — which is why the hero is
-generated (`build-art.py` comments carry the constraints). The count lives in
-each scene's label, never in a line under both: that would show the result
-while the probe is still drowning.
-
 ## Who writes what
 
 `own.svg` is one row: you, the `context/` frame, the probe, and the frame of
@@ -119,6 +95,6 @@ picture.
 
 ## Generating
 
-`hero` and `own` are written by `build-art.py` from one source per image,
+`own` is written by `build-art.py` from one source,
 light and dark from the same markup. Edit the script, never the SVG. Before
 pushing a change here: `python3 assets/build-art.py --check`.

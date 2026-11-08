@@ -77,6 +77,7 @@ _BACKTICK = re.compile(r"`([^`]+)`")
 _DEFAULT_ROOT_DOCS = [
     "CLAUDE.md",
     "README.md",
+    "README.ko.md",
     "scouting/SETUP.md",
     "distinction/SETUP.md",
     "adaptation/SETUP.md",

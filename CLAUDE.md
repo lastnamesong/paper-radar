@@ -32,6 +32,7 @@ file the row points at.
 | Path | Owner | Role |
 |---|---|---|
 | `README.md` | human | Project front door — motivation, the pipeline, which track to run for what |
+| `README.ko.md` | human | The Korean twin of `README.md`, section for section |
 | `context/MASTER.md` | human | Global anchor — cross-cutting content only |
 | `context/P{0..1}.md` | human | One per pillar — its Decision Log, Tracked Literature and Anti-topics. A run reads one |
 | `context/_TEMPLATE.md` | human | The skeleton a new pillar is copied from — the pillar section spine |
@@ -210,15 +211,16 @@ The site build is the only one with dependencies:
 headers, **no emoji**, numbered headers (`## N.`, `### N-M.`) allowed. A folder
 README's H1 is the folder name (`# site/`).
 
-**`README.md`** is the one narrative doc. It opens on the hero — the
-`<picture>` pair `assets/hero.svg` standing where an H1 would, linked to the
-reading site, with the project name and its lines in the `alt` — and below it
-every section is a `<details>` whose `<summary>` is a bold name, an em dash and
-one line.
+**`README.md`** is the one narrative doc, with `README.ko.md` as its Korean
+twin. Each opens on a centred block — the project name as the H1, the
+language switch, the badges, one line and the link to the reading site — and
+below it every section is a `<details>` whose `<summary>` is a bold name, an
+em dash and one line. A change to one README lands in the other in the same
+commit.
 
 Both:
 
-- One H1 per document (`README.md` has none — the hero stands there).
+- One H1 per document.
 - **Each header level is uniformly marked or uniformly plain** — no mixing
   within one level in one doc.
 - Backticks around paths, identifiers, CLI flags, shell commands.
@@ -235,8 +237,9 @@ prompts and context files move with it.
 Agent outputs — `analysis/`, `comparison/`, `scouting/` and the templates
 those folders ship — are **Korean**. Contributor docs and
 `README.md` are **English**, so `git log`, PR threads and outside readers read
-uniformly. No `_KO` / `_EN` filename suffix: `head -1 <file>` tells the
-language.
+uniformly. `README.ko.md` is the one Korean twin, for the readers the reports
+are written for. No other `_KO` / `_EN` filename suffix: `head -1 <file>`
+tells the language.
 
 ## No change history in code or guides
 

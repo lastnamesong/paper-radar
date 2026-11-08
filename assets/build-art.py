@@ -1,17 +1,13 @@
 #!/usr/bin/env python3
-"""Bake the generated README images — each a light/dark pair.
+"""Bake the generated README image — each a light/dark pair.
 
-    hero.svg            the front door: the flood, then the reader, and the
-                        link to the reading site
     own.svg             How it works: who writes what
 
     python3 assets/build-art.py            # write every pair
     python3 assets/build-art.py --check    # fail if any file is out of date
 
-The track icons in this folder are hand-authored. These two carry timed cycles
-whose keyframes are computed from the geometry — a card is marked when it
-crosses a line, so moving the line moves the keyframe — which is why they are
-generated: edit this script, never the SVG. What the images have to keep
+The track icons in this folder are hand-authored. This one is generated so that
+light and dark come from one markup: edit this script, never the SVG. What the images have to keep
 saying is `assets/CLAUDE.md`.
 
 Durations are literal, never `var()`: a custom property declared on `:root`
@@ -104,15 +100,8 @@ PAGE = """<g transform="rotate(-5 48 75.5)">
         <rect class="line l3" x="31" y="78.2" width="22" height="2.2" rx="1.1"/>
       </g>"""
 
-MUG = """<g><ellipse class="shadow" cx="91.5" cy="90" rx="9.4" ry="2.6"/>
-      <path class="steam s1" d="M87.6 63 c-3 -3.2 3 -5.2 0 -8.6"/>
-      <path class="steam s2" d="M95 62 c-3 -3.2 3 -5.2 0 -8.6"/>
-      <path class="handle" d="M99.6 72.6 a5 5 0 0 1 0 9.6"/>
-      <path class="mug" d="M83 68 h17 l-1.9 17.4 a3.2 3.2 0 0 1 -3.2 3.1 h-6.8 a3.2 3.2 0 0 1 -3.2 -3.1 Z"/>
-      <ellipse class="brew" cx="91.5" cy="68" rx="8.5" ry="2.5"/></g>"""
 
-
-def probe(x: float, y: float, s: float, page: bool = False, mug: bool = False) -> str:
+def probe(x: float, y: float, s: float, page: bool = False) -> str:
     """The character in its 96-unit box, top-left at (x, y), pupils down on
     the page and following its lines."""
     eyes = []
@@ -125,34 +114,8 @@ def probe(x: float, y: float, s: float, page: bool = False, mug: bool = False) -
       <rect class="hull" x="17" y="27" width="62" height="54" rx="19"/>
       {"".join(eyes)}
       {PAGE if page else ""}
-    </g>{MUG if mug else ""}
+    </g>
   </g>"""
-
-
-def lost_probe(x: float, y: float, s: float) -> tuple[str, str]:
-    """The out-of-it probe — dimmed hull, crossed eyes, and a wilted sprout:
-    the stem no longer than the upright one but bowed over, both leaves
-    hanging limp from its tip and a third already fallen by the shadow. The two crosses pulse half a
-    beat apart. Returns (svg, css)."""
-    eyes, css = [], []
-    for k, cx in enumerate((36, 60)):
-        eyes.append(f'<circle class="iris" cx="{cx}" cy="52" r="10.5"/>'
-                    f'<g class="xk{k}"><path class="cross" d="M{cx-5.5} 46.5 L{cx+5.5} 57.5 '
-                    f'M{cx+5.5} 46.5 L{cx-5.5} 57.5"/></g>')
-        delay = " animation-delay: -.9s;" if k else ""
-        css.append(f"    .xk{k} {{ transform-box: fill-box; transform-origin: 50% 50%; "
-                   f"animation: xpulse 1.8s ease-in-out infinite;{delay} }}")
-    css.append("    @keyframes xpulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(.74); } }")
-    body = f"""<g transform="translate({x} {y}) scale({s})">
-    <ellipse class="dimbe" opacity=".45" cx="48" cy="90" rx="20" ry="4"/>
-    <path class="dimbe" d="M12 88.2 C16 84.2, 23.4 84, 27.6 86.9 C23.4 90, 16 90.2, 12 88.2 Z"/>
-    <g class="drift">
-      <path class="dimst" d="M48 27.5 C48 20, 46.5 15.5, 42.5 15.5 C39.2 15.5, 37.6 17.8, 37.4 20.6"/>
-      <path class="dimbe" d="M37.4 20.2 C33.6 20.4, 30.8 22.6, 30.4 26.2 C34 26.2, 36.8 23.8, 37.4 20.2 Z"/>
-      <path class="dimbe" d="M37.4 20.2 C40.6 21.2, 42.4 23.8, 42.2 27 C39 26.2, 37.2 23.6, 37.4 20.2 Z"/>
-      <rect class="dim" x="17" y="27" width="62" height="54" rx="19"/>{"".join(eyes)}</g>
-  </g>"""
-    return body, "\n" + "\n".join(css)
 
 
 def human(x: float, y: float, s: float) -> str:
@@ -171,142 +134,6 @@ def svg(w: int, h: int, label: str, css: str, body: str, vb: str | None = None) 
 {body}
 </svg>
 """
-
-
-# ── hero ──────────────────────────────────────────────────────────────
-# One 25 s cycle in two scenes. 0–34 %: the probe out of it while loose
-# papers fall where the feed will stand, labelled as arXiv's daily count.
-# 40–96 %: the reader with its coffee, and the feed, where PROBE marks a few
-# papers as they cross a reading line, labelled as its weekly count.
-
-H = 330
-FEED_X, FEED_TOP, ROW = 690, 46, 34
-FEED_BOT = H - 40
-LINE_Y = (FEED_TOP + FEED_BOT) // 2          # where a card is marked
-N, DUR = 18, 25                               # rows per loop, s per cycle
-LOOP = N * ROW                                # px scrolled per cycle, ~24.5 px/s
-# Rows (per copy of eighteen) that get marked: 10.9, 13.7, 16.5 and 19.3 s,
-# all inside the reader's scene. Each starts below the reading line, so the
-# feed fades in unmarked; the copy scrolling in behind never reaches the line
-# within a cycle, so the loop joins without a card changing state; and the
-# last marked card has left the window before the flood comes back.
-PICKED = (11, 13, 15, 17)
-LOST, READ = "0%, 34% { opacity: 1; } 40%, 96% { opacity: 0; } 100% { opacity: 1; }", \
-             "0%, 34% { opacity: 0; } 40%, 96% { opacity: 1; } 100% { opacity: 0; }"
-FLOOD = [(704, 84, 8), (752, 120, -10), (806, 96, 12), (774, 104, -6),
-         (726, 176, -6), (790, 196, 6), (832, 150, -12), (700, 136, 10)]
-
-HERO_CSS = f"""
-    .ground {{ fill: ${{CARD}}; }}
-    .edge   {{ fill: none; stroke: ${{ACCENT}}; }}
-    .eyebrow{{ fill: ${{DEEP}}; font: 11px {MONO}; letter-spacing: 2.6px; }}
-    .head   {{ fill: ${{INK}}; font: 700 44px {SANS}; letter-spacing: -1.2px; }}
-    .claim  {{ fill: ${{ACCENT}}; font: 700 24px {SANS}; letter-spacing: -.3px; }}
-    .sub    {{ fill: ${{MUTED}}; font: 15px {SANS}; }}
-    .tag    {{ fill: ${{MUTED}}; font: 10px {MONO}; letter-spacing: 1.6px; }}
-    .miss   {{ fill: ${{GHOST}}; }}
-    .missl  {{ fill: ${{MUTED}}; opacity: .28; }}
-    .hit    {{ fill: ${{IRIS}}; stroke: ${{ACCENT}}; stroke-width: 1.5; }}
-    .hitl   {{ fill: ${{DEEP}}; }}
-    .dot    {{ fill: ${{ACCENT}}; }}
-    .ring   {{ fill: none; stroke: ${{ACCENT}}; stroke-width: 1.5; opacity: 0;
-              transform-box: fill-box; transform-origin: 50% 50%; }}
-    .fade0  {{ stop-color: ${{CARD}}; stop-opacity: 1; }}
-    .fade1  {{ stop-color: ${{CARD}}; stop-opacity: 0; }}
-    .sheet  {{ fill: ${{IRIS}}; stroke: ${{BORDER}}; stroke-width: 1.5; }}
-    .sl     {{ fill: ${{MUTED}}; opacity: .3; }}
-    .cta    {{ fill: ${{ACCENT}}; }}
-    .ctat   {{ fill: ${{IRIS}}; font: 600 15px {SANS}; }}
-    .ctaa   {{ fill: none; stroke: ${{IRIS}}; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;
-              animation: nudge 1.8s ease-in-out infinite; }}
-    .feed   {{ animation: scroll {DUR}s linear infinite; }}
-    .mood-lost {{ animation: mlost {DUR}s ease-in-out infinite; }}
-    .mood-read {{ animation: mread {DUR}s ease-in-out infinite; }}
-    .feedwin   {{ animation: mread {DUR}s ease-in-out infinite; }}
-    .rain      {{ animation: rain 2.4s ease-in infinite; }}
-    .rn1 {{ animation-delay: .6s; }} .rn2 {{ animation-delay: 1.2s; }} .rn3 {{ animation-delay: 1.8s; }}
-    @keyframes scroll {{ from {{ transform: translateY(0); }} to {{ transform: translateY(-{LOOP}px); }} }}
-    @keyframes nudge  {{ 0%, 100% {{ transform: translateX(0); }} 50% {{ transform: translateX(3px); }} }}
-    @keyframes mlost  {{ {LOST} }}
-    @keyframes mread  {{ {READ} }}
-    @keyframes rain   {{ 0% {{ transform: translateY(-40px); opacity: 0; }} 20% {{ opacity: 1; }}
-                        80% {{ opacity: 1; }} 100% {{ transform: translateY(40px); opacity: 0; }} }}"""
-
-
-def sheet(x: float, y: float, rot: float, cls: str) -> str:
-    """One loose paper, the unread kind — no accent, no mark."""
-    return (f'<g class="{cls}" transform="rotate({rot} {x+15} {y+19})">'
-            f'<rect class="sheet" x="{x}" y="{y}" width="30" height="38" rx="3"/>'
-            f'<rect class="sl" x="{x+6}" y="{y+8}" width="18" height="2.4" rx="1.2"/>'
-            f'<rect class="sl" x="{x+6}" y="{y+14}" width="18" height="2.4" rx="1.2"/>'
-            f'<rect class="sl" x="{x+6}" y="{y+20}" width="12" height="2.4" rx="1.2"/></g>')
-
-
-def feed() -> tuple[str, str]:
-    """Two copies of the feed, and the keyframes that mark and ring the picks."""
-    rows, css = [], []
-    for copy in (0, 1):
-        for i in range(N):
-            y = FEED_TOP + 4 + i * ROW + copy * LOOP
-            w1, w2 = (110, 70) if i % 2 else (96, 84)
-            rows.append(f'<rect x="{FEED_X}" y="{y}" width="150" height="24" rx="5" class="miss"/>'
-                        f'<rect x="{FEED_X+12}" y="{y+7}" width="{w1}" height="3.4" rx="1.7" class="missl"/>'
-                        f'<rect x="{FEED_X+12}" y="{y+14}" width="{w2}" height="3.4" rx="1.7" class="missl"/>')
-            if i not in PICKED or copy:
-                continue
-            a = round((y + 12 - LINE_Y) / LOOP * 100, 2)      # crosses the line
-            b, c = round(a + 1.2, 2), round(a + 5, 2)
-            css.append(f"    .m{i} {{ animation: m{i} {DUR}s linear infinite; }}\n"
-                       f"    @keyframes m{i} {{ 0%, {a}% {{ opacity: 0; }} {b}%, 100% {{ opacity: 1; }} }}\n"
-                       f"    .r{i} {{ animation: r{i} {DUR}s ease-out infinite; }}\n"
-                       f"    @keyframes r{i} {{ 0%, {a}% {{ opacity: 0; transform: scale(.4); }} "
-                       f"{b}% {{ opacity: .9; transform: scale(.6); }} "
-                       f"{c}%, 100% {{ opacity: 0; transform: scale(3.6); }} }}")
-            rows.append(f'<g class="m{i}"><rect x="{FEED_X}" y="{y}" width="150" height="24" rx="5" class="hit"/>'
-                        f'<circle cx="{FEED_X+13}" cy="{y+12}" r="4" class="dot"/>'
-                        f'<rect x="{FEED_X+24}" y="{y+7}" width="96" height="3.4" rx="1.7" class="hitl"/>'
-                        f'<rect x="{FEED_X+24}" y="{y+14}" width="62" height="3.4" rx="1.7" class="hitl" opacity=".5"/></g>'
-                        f'<circle class="ring r{i}" cx="{FEED_X+13}" cy="{y+12}" r="4"/>')
-    return "\n      ".join(rows), "\n" + "\n".join(css)
-
-
-def hero() -> str:
-    rows, marks = feed()
-    lost, lost_css = lost_probe(544, H - 164, 1.3)
-    rain = "".join(sheet(x, y, r, f"rain rn{k % 4}") for k, (x, y, r) in enumerate(FLOOD))
-    reader = probe(534, H - 172, 1.4, page=True, mug=True)
-    return svg(880, H, "PROBE — Stop drowning in arXiv. PROBE marks the target. Open the reading site.",
-               HERO_CSS + marks + lost_css, f"""
-  <defs>
-    <clipPath id="win"><rect x="{FEED_X-12}" y="{FEED_TOP}" width="184" height="{FEED_BOT-FEED_TOP}"/></clipPath>
-    <linearGradient id="ft" x1="0" y1="0" x2="0" y2="1"><stop class="fade0" offset="0"/><stop class="fade1" offset="1"/></linearGradient>
-    <linearGradient id="fb" x1="0" y1="1" x2="0" y2="0"><stop class="fade0" offset="0"/><stop class="fade1" offset="1"/></linearGradient>
-  </defs>
-  <rect class="ground" width="880" height="{H}" rx="12"/>
-  <rect class="edge" x=".5" y=".5" width="879" height="{H-1}" rx="11.5"/>
-
-  <text class="eyebrow" x="48" y="62">PROBE · RESEARCH SCOUT</text>
-  <text class="head" x="45" y="116">Stop drowning in arXiv.</text>
-  <text class="claim" x="47" y="160">PROBE marks the target.</text>
-  <text class="sub" x="48" y="202">Dexterous manipulation papers, scouted on a schedule,</text>
-  <text class="sub" x="48" y="224">and retold in Korean when you name one.</text>
-  <rect class="cta" x="48" y="252" width="258" height="44" rx="22"/>
-  <text class="ctat" x="72" y="279">Open the reading site</text>
-  <path class="ctaa" d="M270 274h16m-6-6 6 6-6 6"/>
-
-  <g class="feedwin" clip-path="url(#win)">
-    <g class="feed">
-      {rows}
-    </g>
-    <rect x="{FEED_X-12}" y="{FEED_TOP}" width="184" height="46" fill="url(#ft)"/>
-    <rect x="{FEED_X-12}" y="{FEED_BOT-46}" width="184" height="46" fill="url(#fb)"/>
-  </g>
-  <text class="tag mood-lost" x="{FEED_X}" y="34">arXiv · 50–100 A DAY</text>
-  <text class="tag mood-read" x="{FEED_X}" y="34">PROBE · 3–5 A WEEK</text>
-
-  <g class="mood-lost">{lost}{rain}</g>
-  <g class="mood-read">{reader}</g>
-""")
 
 
 # ── own ───────────────────────────────────────────────────────────────
@@ -369,7 +196,7 @@ def own() -> str:
                OWN_CSS, f'<g transform="translate({shift:.1f} 0)">' + "\n  ".join(b) + "</g>")
 
 
-IMAGES = {"hero": hero, "own": own}
+IMAGES = {"own": own}
 
 
 def main() -> int:

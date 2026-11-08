@@ -1,10 +1,26 @@
 <div align="center">
 
-<a href="https://lastnamesong.github.io/paper-radar/"><picture><source media="(prefers-color-scheme: dark)" srcset="assets/hero-dark.svg"><img src="assets/hero.svg" width="880" alt="PROBE — Stop drowning in arXiv. PROBE marks the target. Open the reading site."></picture></a>
+# paper-radar
+
+**English** · [한국어](README.ko.md)
+
+[![Reading site](https://img.shields.io/badge/reading_site-open-D97757?style=flat-square)](https://lastnamesong.github.io/paper-radar/)
+[![Deploy site](https://img.shields.io/github/actions/workflow/status/lastnamesong/paper-radar/deploy-site.yml?branch=main&style=flat-square&label=deploy)](https://github.com/lastnamesong/paper-radar/actions/workflows/deploy-site.yml)
+[![Scouting format](https://img.shields.io/github/actions/workflow/status/lastnamesong/paper-radar/check-scouting-format.yml?branch=main&style=flat-square&label=scouting%20format)](https://github.com/lastnamesong/paper-radar/actions/workflows/check-scouting-format.yml)
+[![License: MIT](https://img.shields.io/badge/license-MIT-3D7DCA?style=flat-square)](LICENSE)
+[![Built with Claude Code](https://img.shields.io/badge/built_with-Claude_Code-D97757?style=flat-square)](https://claude.com/claude-code)
+
+![P0](https://img.shields.io/badge/P0-wearable_robots_%26_sensors-2E8B7A?style=flat-square)
+![P1](https://img.shields.io/badge/P1-tactile_%26_dexterous_manipulation-7A5CC2?style=flat-square)
+![Scouting](https://img.shields.io/badge/scouting-daily_07%3A00_KST-555?style=flat-square)
+![Language](https://img.shields.io/badge/reports-한국어-555?style=flat-square)
+
+A literature radar for wearable robotics and tactile dexterous manipulation —
+scouted every morning, read in Korean.
+
+**[Open the reading site →](https://lastnamesong.github.io/paper-radar/)**
 
 </div>
-
-<br>
 
 <details open>
 <summary><b>What this is</b> — a research tool for wearable robotics and tactile dexterous manipulation</summary>

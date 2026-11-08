@@ -59,6 +59,7 @@ _REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 _DEFAULT_ROOT_DOCS = [
     "CLAUDE.md",
     "README.md",
+    "README.ko.md",
     "scouting/SETUP.md",
     "distinction/SETUP.md",
     "adaptation/SETUP.md",
