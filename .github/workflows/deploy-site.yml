@@ -15,6 +15,8 @@ name: Deploy site
 #   Settings → Pages → Source: GitHub Actions
 
 on:
+  # Manual runs redeploy without a content change, e.g. after enabling Pages.
+  workflow_dispatch:
   push:
     branches: [main]
     paths:
