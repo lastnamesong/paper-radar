@@ -6,6 +6,27 @@
 
 <br>
 
+<details open>
+<summary><b>What this is</b> — a research tool for wearable robotics and tactile dexterous manipulation</summary>
+<br>
+
+**paper-radar** is the literature radar for one research program: how a body
+or a hand senses contact and acts on it. Every morning a scheduled
+[Claude Code](https://claude.com/claude-code) routine sweeps arXiv and
+Semantic Scholar for the last two weeks of papers, scores them against the
+open decisions in `context/`, and commits one Korean report per pillar. The
+[reading site](https://lastnamesong.github.io/paper-radar/) publishes them.
+
+| Pillar | Covers |
+|---|---|
+| **P0** — Wearable Robots & Sensors | Exoskeletons and exosuits, assistance control, wearable sensing (IMU, EMG, insole pressure, e-skin), intent and gait estimation |
+| **P1** — Tactile Sensing & Dexterous Manipulation | Vision-based, array and e-skin tactile sensors, vision-tactile-language-action (VTLA) policies, multi-fingered in-hand manipulation |
+
+The reports land in `scouting/P0/` and `scouting/P1/`; the papers worth a full
+read become rewrites in `analysis/`.
+
+</details>
+
 <details>
 <summary><b>Why PROBE</b> — from the arXiv flood to your next idea</summary>
 <br>
