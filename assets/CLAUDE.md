@@ -12,6 +12,7 @@ their colours.
 
 | File | Role |
 |---|---|
+| `hero.svg`, `hero-ko.svg` (880×280) | The front door of `README.md` and of `README.ko.md`, linked to the reading site: the name and one line on the left, and on the right a field of resting taxels a sweep crosses, lighting the few it picks |
 | `own.svg` (880×204) | The picture under How it works — who writes what: you and `context/`, the mark that reads it, and the three folders it writes |
 | `track-scouting.svg`, `track-analysis.svg`, `track-comparison.svg`, `track-ideation.svg` | The four track icons (64×64), each above its track's name in the How-it-works table |
 | `build-art.py` | Generates every image here, from one taxel grid |
@@ -47,8 +48,8 @@ small readings that differ in one ringed taxel, and `track-ideation` is one
 taxel lit with four rays. A new track needs a new reading of the grid, not a
 new drawing.
 
-**Motion is spent once.** The scouting sweep is the only animation, because
-sweeping is what that track is. Every image carries its motion in its own
+**Motion is spent on the sweep.** The hero's sweep and the scouting icon's
+band are the only animations, because sweeping is what the radar does. Every image carries its motion in its own
 `<style>`, and `prefers-reduced-motion` stops it.
 
 **An icon shares its track's cell, never a column of its own.** A table
@@ -56,6 +57,15 @@ column that holds only an image has no minimum width — GitHub caps every image
 at `max-width: 100%` — so when the page is narrower than the table, the
 browser squeezes that column first and the icons shrink to nothing. Stacked
 above the track's name, the name holds the cell open.
+
+## The hero
+
+The field is the day's papers and the picks are what the radar presses for
+you, so the count line under it says that in words and the field never carries
+a number. A pick lights when the band's centre reaches its column and stays
+lit until the cycle resets, so the end state — every pick lit — is also the
+base style: with motion off the picture rests there. The English and Korean
+heroes differ only in their text.
 
 ## Who writes what
 

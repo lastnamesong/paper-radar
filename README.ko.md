@@ -1,6 +1,6 @@
 <div align="center">
 
-# paper-radar
+<a href="https://lastnamesong.github.io/paper-radar/"><picture><source media="(prefers-color-scheme: dark)" srcset="assets/hero-ko-dark.svg"><img src="assets/hero-ko.svg" width="880" alt="paper-radar — 연구를 위한 논문 레이더. 매일 아침 스카우팅하고, 한국어로 읽습니다."></picture></a>
 
 [English](README.md) · **한국어**
 
@@ -14,9 +14,6 @@
 ![P1](https://img.shields.io/badge/P1-tactile_%26_dexterous_manipulation-7A5CC2?style=flat-square)
 ![Scouting](https://img.shields.io/badge/scouting-daily_07%3A00_KST-555?style=flat-square)
 ![Language](https://img.shields.io/badge/reports-한국어-555?style=flat-square)
-
-웨어러블 로보틱스와 촉각 기반 정밀 조작(dexterous manipulation)을 위한 논문 레이더 —
-매일 아침 스카우팅하고, 한국어로 읽습니다.
 
 **[읽기 사이트 열기 →](https://lastnamesong.github.io/paper-radar/)**
 

@@ -212,15 +212,16 @@ headers, **no emoji**, numbered headers (`## N.`, `### N-M.`) allowed. A folder
 README's H1 is the folder name (`# site/`).
 
 **`README.md`** is the one narrative doc, with `README.ko.md` as its Korean
-twin. Each opens on a centred block — the project name as the H1, the
-language switch, the badges, one line and the link to the reading site — and
-below it every section is a `<details>` whose `<summary>` is a bold name, an
+twin. Each opens on a centred block — the hero (`assets/hero.svg`, or
+`assets/hero-ko.svg` in the twin) standing where an H1 would, linked to the
+reading site, with the name and its line in the `alt`; then the language
+switch, the badges and a plain link to the reading site — and below it every section is a `<details>` whose `<summary>` is a bold name, an
 em dash and one line. A change to one README lands in the other in the same
 commit.
 
 Both:
 
-- One H1 per document.
+- One H1 per document (a README has none — the hero stands there).
 - **Each header level is uniformly marked or uniformly plain** — no mixing
   within one level in one doc.
 - Backticks around paths, identifiers, CLI flags, shell commands.

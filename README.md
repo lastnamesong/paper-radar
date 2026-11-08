@@ -1,6 +1,6 @@
 <div align="center">
 
-# paper-radar
+<a href="https://lastnamesong.github.io/paper-radar/"><picture><source media="(prefers-color-scheme: dark)" srcset="assets/hero-dark.svg"><img src="assets/hero.svg" width="880" alt="paper-radar — a literature radar for research, scouted every morning and read in Korean."></picture></a>
 
 **English** · [한국어](README.ko.md)
 
@@ -14,9 +14,6 @@
 ![P1](https://img.shields.io/badge/P1-tactile_%26_dexterous_manipulation-7A5CC2?style=flat-square)
 ![Scouting](https://img.shields.io/badge/scouting-daily_07%3A00_KST-555?style=flat-square)
 ![Language](https://img.shields.io/badge/reports-한국어-555?style=flat-square)
-
-A literature radar for wearable robotics and tactile dexterous manipulation —
-scouted every morning, read in Korean.
 
 **[Open the reading site →](https://lastnamesong.github.io/paper-radar/)**
 

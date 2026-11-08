@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="880" height="280" viewBox="0 0 880 280" role="img" aria-label="paper-radar — a literature radar for research, scouted every morning and read in Korean.">
+  <style>
+    .tx-rest  { fill: #E6ECF2; opacity: .28; }
+    .tx-halo  { fill: #E3A23B; opacity: .42; }
+    .tx-core  { fill: #E3A23B; }
+    .lens     { fill: none; stroke: #E6ECF2; stroke-width: 2.4; stroke-linecap: round; }
+    .person   { fill: #93A3B4; }
+
+    .card  { fill: #17202B; stroke: #2E3B4A; stroke-width: 1.2; }
+    .name  { fill: #E6ECF2; font: 800 46px system-ui, -apple-system, 'Segoe UI', 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif; letter-spacing: -1px; }
+    .line  { fill: #E6ECF2; font: 500 18px system-ui, -apple-system, 'Segoe UI', 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif; }
+    .sub   { fill: #93A3B4; font: 14px system-ui, -apple-system, 'Segoe UI', 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif; }
+    .count { fill: #93A3B4; font: 12px system-ui, -apple-system, 'Segoe UI', 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif; }
+    .band  { fill: #E3A23B; opacity: .14;
+              animation: sweep 7s linear infinite; }
+    @keyframes sweep { 0% { transform: translateX(0); }
+                       78% { transform: translateX(360px); opacity: .14; }
+                       79%, 100% { transform: translateX(360px); opacity: 0; } }
+    .pk0 { animation: pick0 7s linear infinite; }
+    @keyframes pick0 { 0%, 16.2% { opacity: .28; transform: scale(.42); } 19.2%, 96% { opacity: 1; transform: scale(1); } 100% { opacity: .28; transform: scale(.42); } }
+    .pk1 { animation: pick1 7s linear infinite; }
+    @keyframes pick1 { 0%, 29.2% { opacity: .28; transform: scale(.42); } 32.2%, 96% { opacity: 1; transform: scale(1); } 100% { opacity: .28; transform: scale(.42); } }
+    .pk2 { animation: pick2 7s linear infinite; }
+    @keyframes pick2 { 0%, 48.8% { opacity: .28; transform: scale(.42); } 51.8%, 96% { opacity: 1; transform: scale(1); } 100% { opacity: .28; transform: scale(.42); } }
+    .pk3 { animation: pick3 7s linear infinite; }
+    @keyframes pick3 { 0%, 68.2% { opacity: .28; transform: scale(.42); } 71.2%, 96% { opacity: 1; transform: scale(1); } 100% { opacity: .28; transform: scale(.42); } }
+    @media (prefers-reduced-motion: reduce) {
+      * { animation: none !important; }
+    }
+  </style>
+<rect class="card" x="1" y="1" width="878" height="278" rx="8"/>
+  <circle class="tx-rest" cx="64.0" cy="70.0" r="2.7"/><circle class="tx-halo" cx="79.0" cy="70.0" r="4.7"/><circle class="tx-halo" cx="94.0" cy="70.0" r="4.7"/><circle class="tx-rest" cx="109.0" cy="70.0" r="2.7"/><circle class="tx-halo" cx="64.0" cy="85.0" r="4.7"/><circle class="tx-core" cx="79.0" cy="85.0" r="6.5"/><circle class="tx-core" cx="94.0" cy="85.0" r="6.5"/><circle class="tx-halo" cx="109.0" cy="85.0" r="4.7"/><circle class="tx-halo" cx="64.0" cy="100.0" r="4.7"/><circle class="tx-core" cx="79.0" cy="100.0" r="6.5"/><circle class="tx-core" cx="94.0" cy="100.0" r="6.5"/><circle class="tx-halo" cx="109.0" cy="100.0" r="4.7"/><circle class="tx-rest" cx="64.0" cy="115.0" r="2.7"/><circle class="tx-halo" cx="79.0" cy="115.0" r="4.7"/><circle class="tx-halo" cx="94.0" cy="115.0" r="4.7"/><circle class="tx-rest" cx="109.0" cy="115.0" r="2.7"/>
+  <text class="name" x="142" y="112">paper-radar</text>
+  <text class="line" x="64" y="170">A literature radar for research.</text>
+  <text class="sub" x="64" y="198">Scouted every morning, read in Korean.</text>
+  <rect class="band" x="470" y="52" width="30" height="178" rx="15.0"/>
+  <circle class="tx-rest" cx="500" cy="66" r="3.0"/><circle class="tx-rest" cx="530" cy="66" r="3.0"/><circle class="tx-rest" cx="560" cy="66" r="3.0"/><circle class="tx-rest" cx="590" cy="66" r="3.0"/><circle class="tx-rest" cx="620" cy="66" r="3.0"/><circle class="tx-rest" cx="650" cy="66" r="3.0"/><circle class="tx-rest" cx="680" cy="66" r="3.0"/><circle class="tx-rest" cx="710" cy="66" r="3.0"/><circle class="tx-rest" cx="740" cy="66" r="3.0"/><circle class="tx-rest" cx="770" cy="66" r="3.0"/><circle class="tx-rest" cx="800" cy="66" r="3.0"/><circle class="tx-rest" cx="830" cy="66" r="3.0"/><circle class="tx-rest" cx="500" cy="96" r="3.0"/><circle class="tx-rest" cx="530" cy="96" r="3.0"/><circle class="tx-rest" cx="590" cy="96" r="3.0"/><circle class="tx-rest" cx="620" cy="96" r="3.0"/><circle class="tx-rest" cx="650" cy="96" r="3.0"/><circle class="tx-rest" cx="680" cy="96" r="3.0"/><circle class="tx-rest" cx="710" cy="96" r="3.0"/><circle class="tx-rest" cx="740" cy="96" r="3.0"/><circle class="tx-rest" cx="770" cy="96" r="3.0"/><circle class="tx-rest" cx="800" cy="96" r="3.0"/><circle class="tx-rest" cx="830" cy="96" r="3.0"/><circle class="tx-rest" cx="500" cy="126" r="3.0"/><circle class="tx-rest" cx="530" cy="126" r="3.0"/><circle class="tx-rest" cx="560" cy="126" r="3.0"/><circle class="tx-rest" cx="590" cy="126" r="3.0"/><circle class="tx-rest" cx="620" cy="126" r="3.0"/><circle class="tx-rest" cx="650" cy="126" r="3.0"/><circle class="tx-rest" cx="680" cy="126" r="3.0"/><circle class="tx-rest" cx="740" cy="126" r="3.0"/><circle class="tx-rest" cx="770" cy="126" r="3.0"/><circle class="tx-rest" cx="800" cy="126" r="3.0"/><circle class="tx-rest" cx="830" cy="126" r="3.0"/><circle class="tx-rest" cx="500" cy="156" r="3.0"/><circle class="tx-rest" cx="530" cy="156" r="3.0"/><circle class="tx-rest" cx="560" cy="156" r="3.0"/><circle class="tx-rest" cx="590" cy="156" r="3.0"/><circle class="tx-rest" cx="620" cy="156" r="3.0"/><circle class="tx-rest" cx="650" cy="156" r="3.0"/><circle class="tx-rest" cx="680" cy="156" r="3.0"/><circle class="tx-rest" cx="710" cy="156" r="3.0"/><circle class="tx-rest" cx="740" cy="156" r="3.0"/><circle class="tx-rest" cx="770" cy="156" r="3.0"/><circle class="tx-rest" cx="830" cy="156" r="3.0"/><circle class="tx-rest" cx="500" cy="186" r="3.0"/><circle class="tx-rest" cx="530" cy="186" r="3.0"/><circle class="tx-rest" cx="560" cy="186" r="3.0"/><circle class="tx-rest" cx="590" cy="186" r="3.0"/><circle class="tx-rest" cx="650" cy="186" r="3.0"/><circle class="tx-rest" cx="680" cy="186" r="3.0"/><circle class="tx-rest" cx="710" cy="186" r="3.0"/><circle class="tx-rest" cx="740" cy="186" r="3.0"/><circle class="tx-rest" cx="770" cy="186" r="3.0"/><circle class="tx-rest" cx="800" cy="186" r="3.0"/><circle class="tx-rest" cx="830" cy="186" r="3.0"/><circle class="tx-rest" cx="500" cy="216" r="3.0"/><circle class="tx-rest" cx="530" cy="216" r="3.0"/><circle class="tx-rest" cx="560" cy="216" r="3.0"/><circle class="tx-rest" cx="590" cy="216" r="3.0"/><circle class="tx-rest" cx="620" cy="216" r="3.0"/><circle class="tx-rest" cx="650" cy="216" r="3.0"/><circle class="tx-rest" cx="680" cy="216" r="3.0"/><circle class="tx-rest" cx="710" cy="216" r="3.0"/><circle class="tx-rest" cx="740" cy="216" r="3.0"/><circle class="tx-rest" cx="770" cy="216" r="3.0"/><circle class="tx-rest" cx="800" cy="216" r="3.0"/><circle class="tx-rest" cx="830" cy="216" r="3.0"/>
+  <circle class="tx-core pk0" style="transform-box: fill-box; transform-origin: center" cx="560" cy="96" r="9.0"/><circle class="tx-core pk1" style="transform-box: fill-box; transform-origin: center" cx="620" cy="186" r="9.0"/><circle class="tx-core pk2" style="transform-box: fill-box; transform-origin: center" cx="710" cy="126" r="9.0"/><circle class="tx-core pk3" style="transform-box: fill-box; transform-origin: center" cx="800" cy="156" r="9.0"/>
+  <text class="count" x="485.0" y="252">Dozens of new papers a day; a few pressed for you.</text>
+</svg>

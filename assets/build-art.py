@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Bake the generated README images — each a light/dark pair.
 
+    hero.svg              the front door, English; hero-ko.svg is the Korean one
     own.svg               How it works: who writes what
     track-scouting.svg    the four track icons in the How-it-works table
     track-analysis.svg
@@ -83,6 +84,71 @@ def svg(w: int, h: int, label: str, css: str, body: str) -> str:
 {body}
 </svg>
 """
+
+
+# ── hero ──────────────────────────────────────────────────────────────
+# The front door. On the right a field of resting taxels — the day's
+# papers — and a sweep crossing it; the few it picks light as the band
+# passes and stay lit until the cycle resets. With motion off the field rests
+# in its end state, every pick lit, since the base style of a pick is lit and
+# only the animation dims it.
+
+FIELD_X, FIELD_Y, PITCH, COLS, ROWS = 500, 46, 30, 12, 6
+PICKS = [(1, 2), (4, 4), (2, 7), (3, 10)]          # (row, col)
+CYCLE = 7                                           # s
+SWEEP_END = .78                                     # share of the cycle the band takes
+
+HERO_CSS = f"""
+    .card  {{ fill: ${{CARD}}; stroke: ${{BORDER}}; stroke-width: 1.2; }}
+    .name  {{ fill: ${{INK}}; font: 800 46px {SANS}; letter-spacing: -1px; }}
+    .line  {{ fill: ${{INK}}; font: 500 18px {SANS}; }}
+    .sub   {{ fill: ${{MUTED}}; font: 14px {SANS}; }}
+    .count {{ fill: ${{MUTED}}; font: 12px {SANS}; }}
+    .band  {{ fill: ${{SIGNAL}}; opacity: .14;
+              animation: sweep {CYCLE}s linear infinite; }}
+    @keyframes sweep {{ 0% {{ transform: translateX(0); }}
+                       {SWEEP_END * 100:.0f}% {{ transform: translateX({COLS * PITCH}px); opacity: .14; }}
+                       {SWEEP_END * 100 + 1:.0f}%, 100% {{ transform: translateX({COLS * PITCH}px); opacity: 0; }} }}"""
+
+
+def hero(name_line: str, sub: str, count: str, label: str) -> str:
+    W, H = 880, 280
+    picks, css = [], []
+    for k, (r, c) in enumerate(PICKS):
+        at = (c + .5) / COLS * SWEEP_END * 100      # when the band's centre reaches it
+        css.append(f"    .pk{k} {{ animation: pick{k} {CYCLE}s linear infinite; }}\n"
+                   f"    @keyframes pick{k} {{ 0%, {at:.1f}% {{ opacity: .28; transform: scale(.42); }}"
+                   f" {at + 3:.1f}%, 96% {{ opacity: 1; transform: scale(1); }}"
+                   f" 100% {{ opacity: .28; transform: scale(.42); }} }}")
+        cx, cy = FIELD_X + c * PITCH, FIELD_Y + 20 + r * PITCH
+        picks.append(f'<circle class="tx-core pk{k}" style="transform-box: fill-box; transform-origin: center" '
+                     f'cx="{cx}" cy="{cy}" r="{PITCH * .3:.1f}"/>')
+    rest = "".join(
+        f'<circle class="tx-rest" cx="{FIELD_X + c * PITCH}" cy="{FIELD_Y + 20 + r * PITCH}" r="{PITCH * .1:.1f}"/>'
+        for r in range(ROWS) for c in range(COLS) if (r, c) not in PICKS)
+    band_h = (ROWS - 1) * PITCH + 28
+    body = "\n  ".join([
+        f'<rect class="card" x="1" y="1" width="{W-2}" height="{H-2}" rx="8"/>',
+        taxels(64, 70, 15),
+        f'<text class="name" x="142" y="112">paper-radar</text>',
+        f'<text class="line" x="64" y="170">{name_line}</text>',
+        f'<text class="sub" x="64" y="198">{sub}</text>',
+        f'<rect class="band" x="{FIELD_X - PITCH}" y="{FIELD_Y + 6}" width="{PITCH}" height="{band_h}" rx="{PITCH / 2}"/>',
+        rest, "".join(picks),
+        f'<text class="count" x="{FIELD_X - PITCH / 2}" y="{H - 28}">{count}</text>'])
+    return svg(W, H, label, HERO_CSS + "\n" + "\n".join(css), body)
+
+
+def hero_en() -> str:
+    return hero("A literature radar for research.", "Scouted every morning, read in Korean.",
+                "Dozens of new papers a day; a few pressed for you.",
+                "paper-radar — a literature radar for research, scouted every morning and read in Korean.")
+
+
+def hero_ko() -> str:
+    return hero("연구를 위한 논문 레이더.", "매일 아침 스카우팅하고, 한국어로 읽습니다.",
+                "하루 수십 편 가운데, 몇 편만 눌러 둡니다.",
+                "paper-radar — 연구를 위한 논문 레이더. 매일 아침 스카우팅하고, 한국어로 읽습니다.")
 
 
 # ── own ───────────────────────────────────────────────────────────────
@@ -182,7 +248,8 @@ def ideation() -> str:
                           for x in (10, 54) for y in (10, 54)))
 
 
-IMAGES = {"own": own, "track-scouting": scouting, "track-analysis": analysis,
+IMAGES = {"hero": hero_en, "hero-ko": hero_ko,
+          "own": own, "track-scouting": scouting, "track-analysis": analysis,
           "track-comparison": comparison, "track-ideation": ideation}
 
 
