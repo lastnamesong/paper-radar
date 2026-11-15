@@ -92,7 +92,7 @@ def check_subject(subject: str) -> list[str]:
         problems.append(
             "drop the manual (#NN) — GitHub appends the PR number on squash-merge"
         )
-    first = re.split(r"[\s:]", desc, 1)[0].lower()
+    first = re.split(r"[\s:]", desc, maxsplit=1)[0].lower()
     if first in _NON_IMPERATIVE:
         problems.append(
             f'first word "{first}" is not an imperative verb '
