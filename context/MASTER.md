@@ -44,7 +44,7 @@ Each pillar file owns its own scope, scouting lens, anti-topics, Decision Log an
 
 | Pillar | Owns | Decisions | File |
 |---|---|---|---|
-| P0 — Wearable Robots, Sensors & Biomechanics | exoskeletons, wearable sensing, intent/gait estimation from worn devices, and the biomechanics they assist | 2 | `context/P0.md` |
+| P0 — Wearable Robots, Sensors & Biomechanics | exoskeletons, wearable sensing, intent/gait estimation from worn devices, and the biomechanics they assist | 3 | `context/P0.md` |
 | P1 — Tactile Sensing & Dexterous Manipulation | tactile sensors, VTLA policies, and dexterous and in-hand manipulation | 2 | `context/P1.md` |
 
 Retired: none.
