@@ -330,9 +330,11 @@ def cmd_pairs(cat: dict, a, docs: dict) -> None:
         })
     first, second = ("score", "contrast") if a.by == "score" else ("contrast", "score")
     rows.sort(key=lambda r: (-r[first], -r[second], r["row"][0], r["row"][2]))
-    if not rows and a.by == "contrast" and pool:  # an empty pool has no pair to miss
-        sys.exit(f"query: no uncovered pair shares a Decision-Log code cited by "
-                 f"{narrow_df} rewrites or fewer — `--by score` ranks the rest")
+    # No contrast pair is a valid answer, not a failure: say why on stderr and
+    # print the empty table. An empty pool has no pair to miss.
+    if not rows and a.by == "contrast" and pool:
+        print(f"query: no uncovered pair shares a Decision-Log code cited by "
+              f"{narrow_df} rewrites or fewer — `--by score` ranks the rest", file=sys.stderr)
     emit(
         [r["row"] + [r["score"], r["contrast"]] + r["tail"] for r in rows[:max(a.limit, 0)]],
         a.json, ["a", "a_name", "b", "b_name", "score", "contrast",
